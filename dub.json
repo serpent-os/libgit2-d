@@ -1,9 +1,10 @@
 {
 	"name": "libgit2-d",
 	"description": "D bindings for libgit2",
-	"homepage": "https://gitlab.com/dokutoku/libgit2-d",
-	"authors": ["dokutoku"],
-	"copyright": "Copyright © 2019, dokutoku",
-	"license": "GPL-2.0(Linking Exception)",
-	"targetType": "sourceLibrary"
+	"homepage": "https://github.com/serpent-os/libgit2-d",
+	"authors": [
+		"Serpent OS Developers"
+	],
+	"copyright": "Copyright © 2020-2023 Serpent OS Developers",
+	"license": "ZLib",
 }
