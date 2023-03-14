@@ -443,3 +443,7 @@ libgit2 = library(
   link_with: [pcre, http_parser],
   dependencies: [zlib, openssl]
 )
+
+libgit2_dep = declare_dependency(
+  link_with: libgit2,
+)

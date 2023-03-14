@@ -15,11 +15,16 @@ if meson.is_subproject()
 	installFiles = false
 endif
 
-libgit2_dep = subproject('libgit2').get_variable('libgit2_dep')
+libgit2 = subproject(
+  'libgit2',
+  default_options: ['default_library=static'],
+)
+libgit2_dep = libgit2.get_variable('libgit2_dep')
 
 # Package sources
 deps_sources = [
     'source/git2/bindings.d',
+    'source/git2/extra.d',
     'source/git2/package.d',
 ]
 
@@ -52,12 +57,12 @@ link_libgit2 = declare_dependency(
 if installFiles
 	
 	# Install source for other D applications
-	install_subdir('source/libgit2', install_dir: 'include/d')
+	install_subdir('source/git2', install_dir: 'include/d')
 
 	# Generate pkgconfig for linking
 	pkgconf.generate(name: 'libgit2-d',
 		libraries: libgit2,
-		subdirs: 'd/libgit2',
+		subdirs: 'd/git2',
 		version: meson.project_version(),
 		description: 'libgit2-d module'
 	)
