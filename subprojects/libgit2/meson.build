@@ -17,7 +17,7 @@ sha256_backend = get_option('sha256')
 
 git2_include = include_directories('include')
  
-defines = ['-DLIBGIT2_NO_FEATURES_H=']
+defines = ['-DLIBGIT2_NO_FEATURES_H=', '-DGIT_HTTPS=1', '-DGIT_OPENSSL=1']
 srcs = files(
   # libgit2 itself
   'src/libgit2/odb.c',
@@ -406,6 +406,7 @@ if regex_backend == 'builtin' or regex_backend == 'pcre'
 endif
 
 subdir('deps/http-parser')
+subdir('deps/ntlmclient')
 
 cc = meson.get_compiler('c')
 if cc.sizeof('void*') == 8
@@ -440,7 +441,7 @@ libgit2 = library(
     ),
   ],
   c_args: defines,
-  link_with: [pcre, http_parser],
+  link_with: [pcre, http_parser, ntlmclient],
   dependencies: [zlib, openssl]
 )
 
