@@ -64,7 +64,8 @@ enum git_libgit2_opt_t
     GIT_OPT_GET_OWNER_VALIDATION = 35,
     GIT_OPT_SET_OWNER_VALIDATION = 36,
     GIT_OPT_GET_HOMEDIR = 37,
-    GIT_OPT_SET_HOMEDIR = 38
+    GIT_OPT_SET_HOMEDIR = 38,
+    GIT_OPT_ENABLE_SHALLOW = 39
 }
 
 int git_libgit2_opts (int option, ...);
@@ -2861,6 +2862,10 @@ struct git_fetch_options
     git_remote_redirect_t follow_redirects;
 
     git_strarray custom_headers;
+
+    int depth;
+
+    int unshallow;
 }
 
 int git_fetch_options_init (git_fetch_options* opts, uint version_);
@@ -3448,7 +3453,8 @@ enum git_error_t
     GIT_ERROR_WORKTREE = 32,
     GIT_ERROR_SHA = 33,
     GIT_ERROR_HTTP = 34,
-    GIT_ERROR_INTERNAL = 35
+    GIT_ERROR_INTERNAL = 35,
+    GIT_ERROR_GRAFTS = 36
 }
 
 const(git_error)* git_error_last ();
