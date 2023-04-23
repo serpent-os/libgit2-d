@@ -7,6 +7,10 @@ import core.stdc.stddef;
 @safe:
 extern (C):
 
+alias git_indexer_progress_cb = int function (const(git_indexer_progress)* stats, void* payload);
+
+@nogc:
+
 int git_libgit2_version (out int major, out int minor, out int rev);
 
 const(char)* git_libgit2_prerelease ();
@@ -389,9 +393,9 @@ int git_repository_init_options_init (
     uint version_);
 
 int git_repository_init_ext (
-    git_repository** out_,
+    scope out git_repository* out_,
     const(char)* repo_path,
-    git_repository_init_options* opts);
+    scope const(git_repository_init_options)* opts);
 
 int git_repository_head (git_reference** out_, scope git_repository* repo);
 
@@ -1951,8 +1955,6 @@ struct git_indexer_progress
 
     size_t received_bytes;
 }
-
-alias git_indexer_progress_cb = int function (const(git_indexer_progress)* stats, void* payload);
 
 struct git_indexer_options
 {
