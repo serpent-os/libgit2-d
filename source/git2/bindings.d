@@ -2657,7 +2657,7 @@ struct git_proxy_options
 int git_proxy_options_init (git_proxy_options* opts, uint version_);
 
 int git_remote_create (
-    git_remote** out_,
+    scope out git_remote* out_,
     scope git_repository* repo,
     const(char)* name,
     const(char)* url);
