@@ -9,6 +9,7 @@ bin/
 *.a
 *.lib
 *.exe
+*.i
 *.o
 *.obj
 *.lst
