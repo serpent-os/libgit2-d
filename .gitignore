@@ -13,3 +13,4 @@ bin/
 *.o
 *.obj
 *.lst
+*.bak

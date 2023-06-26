@@ -1,15 +1,14 @@
 module git2.bindings;
 
-import std.conv: octal;
 import core.stdc.config;
+import core.stdc.stdarg;
 import core.stdc.stddef;
+import std.conv;
 
-@safe:
 extern (C):
-
-alias git_indexer_progress_cb = int function (const(git_indexer_progress)* stats, void* payload);
-
+@safe:
 @nogc:
+nothrow:
 
 int git_libgit2_version (out int major, out int minor, out int rev);
 
@@ -25,6 +24,11 @@ enum git_feature_t
 
     GIT_FEATURE_NSEC = 1 << 3
 }
+
+alias GIT_FEATURE_THREADS = git_feature_t.GIT_FEATURE_THREADS;
+alias GIT_FEATURE_HTTPS = git_feature_t.GIT_FEATURE_HTTPS;
+alias GIT_FEATURE_SSH = git_feature_t.GIT_FEATURE_SSH;
+alias GIT_FEATURE_NSEC = git_feature_t.GIT_FEATURE_NSEC;
 
 int git_libgit2_features ();
 
@@ -69,8 +73,55 @@ enum git_libgit2_opt_t
     GIT_OPT_SET_OWNER_VALIDATION = 36,
     GIT_OPT_GET_HOMEDIR = 37,
     GIT_OPT_SET_HOMEDIR = 38,
-    GIT_OPT_ENABLE_SHALLOW = 39
+    GIT_OPT_SET_SERVER_CONNECT_TIMEOUT = 39,
+    GIT_OPT_GET_SERVER_CONNECT_TIMEOUT = 40,
+    GIT_OPT_SET_SERVER_TIMEOUT = 41,
+    GIT_OPT_GET_SERVER_TIMEOUT = 42
 }
+
+alias GIT_OPT_GET_MWINDOW_SIZE = git_libgit2_opt_t.GIT_OPT_GET_MWINDOW_SIZE;
+alias GIT_OPT_SET_MWINDOW_SIZE = git_libgit2_opt_t.GIT_OPT_SET_MWINDOW_SIZE;
+alias GIT_OPT_GET_MWINDOW_MAPPED_LIMIT = git_libgit2_opt_t.GIT_OPT_GET_MWINDOW_MAPPED_LIMIT;
+alias GIT_OPT_SET_MWINDOW_MAPPED_LIMIT = git_libgit2_opt_t.GIT_OPT_SET_MWINDOW_MAPPED_LIMIT;
+alias GIT_OPT_GET_SEARCH_PATH = git_libgit2_opt_t.GIT_OPT_GET_SEARCH_PATH;
+alias GIT_OPT_SET_SEARCH_PATH = git_libgit2_opt_t.GIT_OPT_SET_SEARCH_PATH;
+alias GIT_OPT_SET_CACHE_OBJECT_LIMIT = git_libgit2_opt_t.GIT_OPT_SET_CACHE_OBJECT_LIMIT;
+alias GIT_OPT_SET_CACHE_MAX_SIZE = git_libgit2_opt_t.GIT_OPT_SET_CACHE_MAX_SIZE;
+alias GIT_OPT_ENABLE_CACHING = git_libgit2_opt_t.GIT_OPT_ENABLE_CACHING;
+alias GIT_OPT_GET_CACHED_MEMORY = git_libgit2_opt_t.GIT_OPT_GET_CACHED_MEMORY;
+alias GIT_OPT_GET_TEMPLATE_PATH = git_libgit2_opt_t.GIT_OPT_GET_TEMPLATE_PATH;
+alias GIT_OPT_SET_TEMPLATE_PATH = git_libgit2_opt_t.GIT_OPT_SET_TEMPLATE_PATH;
+alias GIT_OPT_SET_SSL_CERT_LOCATIONS = git_libgit2_opt_t.GIT_OPT_SET_SSL_CERT_LOCATIONS;
+alias GIT_OPT_SET_USER_AGENT = git_libgit2_opt_t.GIT_OPT_SET_USER_AGENT;
+alias GIT_OPT_ENABLE_STRICT_OBJECT_CREATION = git_libgit2_opt_t.GIT_OPT_ENABLE_STRICT_OBJECT_CREATION;
+alias GIT_OPT_ENABLE_STRICT_SYMBOLIC_REF_CREATION = git_libgit2_opt_t.GIT_OPT_ENABLE_STRICT_SYMBOLIC_REF_CREATION;
+alias GIT_OPT_SET_SSL_CIPHERS = git_libgit2_opt_t.GIT_OPT_SET_SSL_CIPHERS;
+alias GIT_OPT_GET_USER_AGENT = git_libgit2_opt_t.GIT_OPT_GET_USER_AGENT;
+alias GIT_OPT_ENABLE_OFS_DELTA = git_libgit2_opt_t.GIT_OPT_ENABLE_OFS_DELTA;
+alias GIT_OPT_ENABLE_FSYNC_GITDIR = git_libgit2_opt_t.GIT_OPT_ENABLE_FSYNC_GITDIR;
+alias GIT_OPT_GET_WINDOWS_SHAREMODE = git_libgit2_opt_t.GIT_OPT_GET_WINDOWS_SHAREMODE;
+alias GIT_OPT_SET_WINDOWS_SHAREMODE = git_libgit2_opt_t.GIT_OPT_SET_WINDOWS_SHAREMODE;
+alias GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION = git_libgit2_opt_t.GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION;
+alias GIT_OPT_SET_ALLOCATOR = git_libgit2_opt_t.GIT_OPT_SET_ALLOCATOR;
+alias GIT_OPT_ENABLE_UNSAVED_INDEX_SAFETY = git_libgit2_opt_t.GIT_OPT_ENABLE_UNSAVED_INDEX_SAFETY;
+alias GIT_OPT_GET_PACK_MAX_OBJECTS = git_libgit2_opt_t.GIT_OPT_GET_PACK_MAX_OBJECTS;
+alias GIT_OPT_SET_PACK_MAX_OBJECTS = git_libgit2_opt_t.GIT_OPT_SET_PACK_MAX_OBJECTS;
+alias GIT_OPT_DISABLE_PACK_KEEP_FILE_CHECKS = git_libgit2_opt_t.GIT_OPT_DISABLE_PACK_KEEP_FILE_CHECKS;
+alias GIT_OPT_ENABLE_HTTP_EXPECT_CONTINUE = git_libgit2_opt_t.GIT_OPT_ENABLE_HTTP_EXPECT_CONTINUE;
+alias GIT_OPT_GET_MWINDOW_FILE_LIMIT = git_libgit2_opt_t.GIT_OPT_GET_MWINDOW_FILE_LIMIT;
+alias GIT_OPT_SET_MWINDOW_FILE_LIMIT = git_libgit2_opt_t.GIT_OPT_SET_MWINDOW_FILE_LIMIT;
+alias GIT_OPT_SET_ODB_PACKED_PRIORITY = git_libgit2_opt_t.GIT_OPT_SET_ODB_PACKED_PRIORITY;
+alias GIT_OPT_SET_ODB_LOOSE_PRIORITY = git_libgit2_opt_t.GIT_OPT_SET_ODB_LOOSE_PRIORITY;
+alias GIT_OPT_GET_EXTENSIONS = git_libgit2_opt_t.GIT_OPT_GET_EXTENSIONS;
+alias GIT_OPT_SET_EXTENSIONS = git_libgit2_opt_t.GIT_OPT_SET_EXTENSIONS;
+alias GIT_OPT_GET_OWNER_VALIDATION = git_libgit2_opt_t.GIT_OPT_GET_OWNER_VALIDATION;
+alias GIT_OPT_SET_OWNER_VALIDATION = git_libgit2_opt_t.GIT_OPT_SET_OWNER_VALIDATION;
+alias GIT_OPT_GET_HOMEDIR = git_libgit2_opt_t.GIT_OPT_GET_HOMEDIR;
+alias GIT_OPT_SET_HOMEDIR = git_libgit2_opt_t.GIT_OPT_SET_HOMEDIR;
+alias GIT_OPT_SET_SERVER_CONNECT_TIMEOUT = git_libgit2_opt_t.GIT_OPT_SET_SERVER_CONNECT_TIMEOUT;
+alias GIT_OPT_GET_SERVER_CONNECT_TIMEOUT = git_libgit2_opt_t.GIT_OPT_GET_SERVER_CONNECT_TIMEOUT;
+alias GIT_OPT_SET_SERVER_TIMEOUT = git_libgit2_opt_t.GIT_OPT_SET_SERVER_TIMEOUT;
+alias GIT_OPT_GET_SERVER_TIMEOUT = git_libgit2_opt_t.GIT_OPT_GET_SERVER_TIMEOUT;
 
 int git_libgit2_opts (int option, ...);
 
@@ -88,12 +139,14 @@ struct git_buf
     size_t size;
 }
 
-void git_buf_dispose (ref git_buf buffer);
+void git_buf_dispose (git_buf* buffer);
 
 enum git_oid_t
 {
     GIT_OID_SHA1 = 1
 }
+
+alias GIT_OID_SHA1 = git_oid_t.GIT_OID_SHA1;
 
 struct git_oid
 {
@@ -151,6 +204,15 @@ enum git_object_t
     GIT_OBJECT_OFS_DELTA = 6,
     GIT_OBJECT_REF_DELTA = 7
 }
+
+alias GIT_OBJECT_ANY = git_object_t.GIT_OBJECT_ANY;
+alias GIT_OBJECT_INVALID = git_object_t.GIT_OBJECT_INVALID;
+alias GIT_OBJECT_COMMIT = git_object_t.GIT_OBJECT_COMMIT;
+alias GIT_OBJECT_TREE = git_object_t.GIT_OBJECT_TREE;
+alias GIT_OBJECT_BLOB = git_object_t.GIT_OBJECT_BLOB;
+alias GIT_OBJECT_TAG = git_object_t.GIT_OBJECT_TAG;
+alias GIT_OBJECT_OFS_DELTA = git_object_t.GIT_OBJECT_OFS_DELTA;
+alias GIT_OBJECT_REF_DELTA = git_object_t.GIT_OBJECT_REF_DELTA;
 
 struct git_odb;
 
@@ -240,12 +302,21 @@ enum git_reference_t
     GIT_REFERENCE_ALL = GIT_REFERENCE_DIRECT | GIT_REFERENCE_SYMBOLIC
 }
 
+alias GIT_REFERENCE_INVALID = git_reference_t.GIT_REFERENCE_INVALID;
+alias GIT_REFERENCE_DIRECT = git_reference_t.GIT_REFERENCE_DIRECT;
+alias GIT_REFERENCE_SYMBOLIC = git_reference_t.GIT_REFERENCE_SYMBOLIC;
+alias GIT_REFERENCE_ALL = git_reference_t.GIT_REFERENCE_ALL;
+
 enum git_branch_t
 {
     GIT_BRANCH_LOCAL = 1,
     GIT_BRANCH_REMOTE = 2,
     GIT_BRANCH_ALL = GIT_BRANCH_LOCAL | GIT_BRANCH_REMOTE
 }
+
+alias GIT_BRANCH_LOCAL = git_branch_t.GIT_BRANCH_LOCAL;
+alias GIT_BRANCH_REMOTE = git_branch_t.GIT_BRANCH_REMOTE;
+alias GIT_BRANCH_ALL = git_branch_t.GIT_BRANCH_ALL;
 
 enum git_filemode_t
 {
@@ -256,6 +327,13 @@ enum git_filemode_t
     GIT_FILEMODE_LINK = octal!120000,
     GIT_FILEMODE_COMMIT = octal!160000
 }
+
+alias GIT_FILEMODE_UNREADABLE = git_filemode_t.GIT_FILEMODE_UNREADABLE;
+alias GIT_FILEMODE_TREE = git_filemode_t.GIT_FILEMODE_TREE;
+alias GIT_FILEMODE_BLOB = git_filemode_t.GIT_FILEMODE_BLOB;
+alias GIT_FILEMODE_BLOB_EXECUTABLE = git_filemode_t.GIT_FILEMODE_BLOB_EXECUTABLE;
+alias GIT_FILEMODE_LINK = git_filemode_t.GIT_FILEMODE_LINK;
+alias GIT_FILEMODE_COMMIT = git_filemode_t.GIT_FILEMODE_COMMIT;
 
 struct git_refspec;
 
@@ -277,6 +355,12 @@ enum git_submodule_update_t
     GIT_SUBMODULE_UPDATE_DEFAULT = 0
 }
 
+alias GIT_SUBMODULE_UPDATE_CHECKOUT = git_submodule_update_t.GIT_SUBMODULE_UPDATE_CHECKOUT;
+alias GIT_SUBMODULE_UPDATE_REBASE = git_submodule_update_t.GIT_SUBMODULE_UPDATE_REBASE;
+alias GIT_SUBMODULE_UPDATE_MERGE = git_submodule_update_t.GIT_SUBMODULE_UPDATE_MERGE;
+alias GIT_SUBMODULE_UPDATE_NONE = git_submodule_update_t.GIT_SUBMODULE_UPDATE_NONE;
+alias GIT_SUBMODULE_UPDATE_DEFAULT = git_submodule_update_t.GIT_SUBMODULE_UPDATE_DEFAULT;
+
 enum git_submodule_ignore_t
 {
     GIT_SUBMODULE_IGNORE_UNSPECIFIED = -1,
@@ -287,12 +371,22 @@ enum git_submodule_ignore_t
     GIT_SUBMODULE_IGNORE_ALL = 4
 }
 
+alias GIT_SUBMODULE_IGNORE_UNSPECIFIED = git_submodule_ignore_t.GIT_SUBMODULE_IGNORE_UNSPECIFIED;
+alias GIT_SUBMODULE_IGNORE_NONE = git_submodule_ignore_t.GIT_SUBMODULE_IGNORE_NONE;
+alias GIT_SUBMODULE_IGNORE_UNTRACKED = git_submodule_ignore_t.GIT_SUBMODULE_IGNORE_UNTRACKED;
+alias GIT_SUBMODULE_IGNORE_DIRTY = git_submodule_ignore_t.GIT_SUBMODULE_IGNORE_DIRTY;
+alias GIT_SUBMODULE_IGNORE_ALL = git_submodule_ignore_t.GIT_SUBMODULE_IGNORE_ALL;
+
 enum git_submodule_recurse_t
 {
     GIT_SUBMODULE_RECURSE_NO = 0,
     GIT_SUBMODULE_RECURSE_YES = 1,
     GIT_SUBMODULE_RECURSE_ONDEMAND = 2
 }
+
+alias GIT_SUBMODULE_RECURSE_NO = git_submodule_recurse_t.GIT_SUBMODULE_RECURSE_NO;
+alias GIT_SUBMODULE_RECURSE_YES = git_submodule_recurse_t.GIT_SUBMODULE_RECURSE_YES;
+alias GIT_SUBMODULE_RECURSE_ONDEMAND = git_submodule_recurse_t.GIT_SUBMODULE_RECURSE_ONDEMAND;
 
 struct git_writestream
 {
@@ -305,9 +399,9 @@ struct git_mailmap;
 
 int git_repository_open (scope out git_repository* out_, const(char)* path);
 
-int git_repository_open_from_worktree (scope out git_repository* out_, scope git_worktree* wt);
+int git_repository_open_from_worktree (scope out git_repository* out_, git_worktree* wt);
 
-int git_repository_wrap_odb (git_repository** out_, git_odb* odb);
+int git_repository_wrap_odb (scope out git_repository* out_, git_odb* odb);
 
 int git_repository_discover (
     git_buf* out_,
@@ -328,13 +422,19 @@ enum git_repository_open_flag_t
     GIT_REPOSITORY_OPEN_FROM_ENV = 1 << 4
 }
 
+alias GIT_REPOSITORY_OPEN_NO_SEARCH = git_repository_open_flag_t.GIT_REPOSITORY_OPEN_NO_SEARCH;
+alias GIT_REPOSITORY_OPEN_CROSS_FS = git_repository_open_flag_t.GIT_REPOSITORY_OPEN_CROSS_FS;
+alias GIT_REPOSITORY_OPEN_BARE = git_repository_open_flag_t.GIT_REPOSITORY_OPEN_BARE;
+alias GIT_REPOSITORY_OPEN_NO_DOTGIT = git_repository_open_flag_t.GIT_REPOSITORY_OPEN_NO_DOTGIT;
+alias GIT_REPOSITORY_OPEN_FROM_ENV = git_repository_open_flag_t.GIT_REPOSITORY_OPEN_FROM_ENV;
+
 int git_repository_open_ext (
-    git_repository** out_,
+    scope out git_repository* out_,
     const(char)* path,
     uint flags,
     const(char)* ceiling_dirs);
 
-int git_repository_open_bare (git_repository** out_, const(char)* bare_path);
+int git_repository_open_bare (scope out git_repository* out_, const(char)* bare_path);
 
 void git_repository_free (scope git_repository* repo);
 
@@ -360,6 +460,14 @@ enum git_repository_init_flag_t
     GIT_REPOSITORY_INIT_RELATIVE_GITLINK = 1u << 6
 }
 
+alias GIT_REPOSITORY_INIT_BARE = git_repository_init_flag_t.GIT_REPOSITORY_INIT_BARE;
+alias GIT_REPOSITORY_INIT_NO_REINIT = git_repository_init_flag_t.GIT_REPOSITORY_INIT_NO_REINIT;
+alias GIT_REPOSITORY_INIT_NO_DOTGIT_DIR = git_repository_init_flag_t.GIT_REPOSITORY_INIT_NO_DOTGIT_DIR;
+alias GIT_REPOSITORY_INIT_MKDIR = git_repository_init_flag_t.GIT_REPOSITORY_INIT_MKDIR;
+alias GIT_REPOSITORY_INIT_MKPATH = git_repository_init_flag_t.GIT_REPOSITORY_INIT_MKPATH;
+alias GIT_REPOSITORY_INIT_EXTERNAL_TEMPLATE = git_repository_init_flag_t.GIT_REPOSITORY_INIT_EXTERNAL_TEMPLATE;
+alias GIT_REPOSITORY_INIT_RELATIVE_GITLINK = git_repository_init_flag_t.GIT_REPOSITORY_INIT_RELATIVE_GITLINK;
+
 enum git_repository_init_mode_t
 {
     GIT_REPOSITORY_INIT_SHARED_UMASK = 0,
@@ -368,6 +476,10 @@ enum git_repository_init_mode_t
 
     GIT_REPOSITORY_INIT_SHARED_ALL = octal!2777
 }
+
+alias GIT_REPOSITORY_INIT_SHARED_UMASK = git_repository_init_mode_t.GIT_REPOSITORY_INIT_SHARED_UMASK;
+alias GIT_REPOSITORY_INIT_SHARED_GROUP = git_repository_init_mode_t.GIT_REPOSITORY_INIT_SHARED_GROUP;
+alias GIT_REPOSITORY_INIT_SHARED_ALL = git_repository_init_mode_t.GIT_REPOSITORY_INIT_SHARED_ALL;
 
 struct git_repository_init_options
 {
@@ -389,13 +501,13 @@ struct git_repository_init_options
 }
 
 int git_repository_init_options_init (
-    git_repository_init_options* opts,
+    scope ref git_repository_init_options opts,
     uint version_);
 
 int git_repository_init_ext (
     scope out git_repository* out_,
     const(char)* repo_path,
-    scope const(git_repository_init_options)* opts);
+    scope ref git_repository_init_options opts);
 
 int git_repository_head (git_reference** out_, scope git_repository* repo);
 
@@ -433,22 +545,38 @@ enum git_repository_item_t
     GIT_REPOSITORY_ITEM__LAST = 14
 }
 
-int git_repository_item_path (git_buf* out_, ref git_repository* repo, git_repository_item_t item);
+alias GIT_REPOSITORY_ITEM_GITDIR = git_repository_item_t.GIT_REPOSITORY_ITEM_GITDIR;
+alias GIT_REPOSITORY_ITEM_WORKDIR = git_repository_item_t.GIT_REPOSITORY_ITEM_WORKDIR;
+alias GIT_REPOSITORY_ITEM_COMMONDIR = git_repository_item_t.GIT_REPOSITORY_ITEM_COMMONDIR;
+alias GIT_REPOSITORY_ITEM_INDEX = git_repository_item_t.GIT_REPOSITORY_ITEM_INDEX;
+alias GIT_REPOSITORY_ITEM_OBJECTS = git_repository_item_t.GIT_REPOSITORY_ITEM_OBJECTS;
+alias GIT_REPOSITORY_ITEM_REFS = git_repository_item_t.GIT_REPOSITORY_ITEM_REFS;
+alias GIT_REPOSITORY_ITEM_PACKED_REFS = git_repository_item_t.GIT_REPOSITORY_ITEM_PACKED_REFS;
+alias GIT_REPOSITORY_ITEM_REMOTES = git_repository_item_t.GIT_REPOSITORY_ITEM_REMOTES;
+alias GIT_REPOSITORY_ITEM_CONFIG = git_repository_item_t.GIT_REPOSITORY_ITEM_CONFIG;
+alias GIT_REPOSITORY_ITEM_INFO = git_repository_item_t.GIT_REPOSITORY_ITEM_INFO;
+alias GIT_REPOSITORY_ITEM_HOOKS = git_repository_item_t.GIT_REPOSITORY_ITEM_HOOKS;
+alias GIT_REPOSITORY_ITEM_LOGS = git_repository_item_t.GIT_REPOSITORY_ITEM_LOGS;
+alias GIT_REPOSITORY_ITEM_MODULES = git_repository_item_t.GIT_REPOSITORY_ITEM_MODULES;
+alias GIT_REPOSITORY_ITEM_WORKTREES = git_repository_item_t.GIT_REPOSITORY_ITEM_WORKTREES;
+alias GIT_REPOSITORY_ITEM__LAST = git_repository_item_t.GIT_REPOSITORY_ITEM__LAST;
 
-const(char)* git_repository_path (ref git_repository* repo);
+int git_repository_item_path (git_buf* out_, scope const(git_repository)* repo, git_repository_item_t item);
 
-const(char)* git_repository_workdir (ref git_repository* repo);
+const(char)* git_repository_path (scope const(git_repository)* repo);
 
-const(char)* git_repository_commondir (ref git_repository* repo);
+const(char)* git_repository_workdir (scope const(git_repository)* repo);
+
+const(char)* git_repository_commondir (scope const(git_repository)* repo);
 
 int git_repository_set_workdir (
     scope git_repository* repo,
     const(char)* workdir,
     int update_gitlink);
 
-int git_repository_is_bare (ref git_repository* repo);
+int git_repository_is_bare (scope const(git_repository)* repo);
 
-int git_repository_is_worktree (ref git_repository* repo);
+int git_repository_is_worktree (scope const(git_repository)* repo);
 
 int git_repository_config (git_config** out_, scope git_repository* repo);
 
@@ -522,6 +650,19 @@ enum git_repository_state_t
     GIT_REPOSITORY_STATE_APPLY_MAILBOX_OR_REBASE = 11
 }
 
+alias GIT_REPOSITORY_STATE_NONE = git_repository_state_t.GIT_REPOSITORY_STATE_NONE;
+alias GIT_REPOSITORY_STATE_MERGE = git_repository_state_t.GIT_REPOSITORY_STATE_MERGE;
+alias GIT_REPOSITORY_STATE_REVERT = git_repository_state_t.GIT_REPOSITORY_STATE_REVERT;
+alias GIT_REPOSITORY_STATE_REVERT_SEQUENCE = git_repository_state_t.GIT_REPOSITORY_STATE_REVERT_SEQUENCE;
+alias GIT_REPOSITORY_STATE_CHERRYPICK = git_repository_state_t.GIT_REPOSITORY_STATE_CHERRYPICK;
+alias GIT_REPOSITORY_STATE_CHERRYPICK_SEQUENCE = git_repository_state_t.GIT_REPOSITORY_STATE_CHERRYPICK_SEQUENCE;
+alias GIT_REPOSITORY_STATE_BISECT = git_repository_state_t.GIT_REPOSITORY_STATE_BISECT;
+alias GIT_REPOSITORY_STATE_REBASE = git_repository_state_t.GIT_REPOSITORY_STATE_REBASE;
+alias GIT_REPOSITORY_STATE_REBASE_INTERACTIVE = git_repository_state_t.GIT_REPOSITORY_STATE_REBASE_INTERACTIVE;
+alias GIT_REPOSITORY_STATE_REBASE_MERGE = git_repository_state_t.GIT_REPOSITORY_STATE_REBASE_MERGE;
+alias GIT_REPOSITORY_STATE_APPLY_MAILBOX = git_repository_state_t.GIT_REPOSITORY_STATE_APPLY_MAILBOX;
+alias GIT_REPOSITORY_STATE_APPLY_MAILBOX_OR_REBASE = git_repository_state_t.GIT_REPOSITORY_STATE_APPLY_MAILBOX_OR_REBASE;
+
 int git_repository_state (scope git_repository* repo);
 
 int git_repository_set_namespace (scope git_repository* repo, const(char)* nmspace);
@@ -530,7 +671,7 @@ const(char)* git_repository_get_namespace (scope git_repository* repo);
 
 int git_repository_is_shallow (scope git_repository* repo);
 
-int git_repository_ident (const(char*)* name, const(char*)* email, ref git_repository* repo);
+int git_repository_ident (const(char*)* name, const(char*)* email, scope const(git_repository)* repo);
 
 int git_repository_set_ident (scope git_repository* repo, const(char)* name, const(char)* email);
 
@@ -565,33 +706,33 @@ const(char)* git_annotated_commit_ref (const(git_annotated_commit)* commit);
 void git_annotated_commit_free (git_annotated_commit* commit);
 
 int git_object_lookup (
-    git_object** object,
+    scope out git_object* object,
     scope git_repository* repo,
     const(git_oid)* id,
     git_object_t type);
 
 int git_object_lookup_prefix (
-    git_object** object_out,
+    scope out git_object* object_out,
     scope git_repository* repo,
     const(git_oid)* id,
     size_t len,
     git_object_t type);
 
 int git_object_lookup_bypath (
-    git_object** out_,
-    const(git_object)* treeish,
+    scope out git_object* out_,
+    scope const(git_object)* treeish,
     const(char)* path,
     git_object_t type);
 
-const(git_oid)* git_object_id (const(git_object)* obj);
+const(git_oid)* git_object_id (scope const(git_object)* obj);
 
-int git_object_short_id (git_buf* out_, const(git_object)* obj);
+int git_object_short_id (git_buf* out_, scope const(git_object)* obj);
 
-git_object_t git_object_type (const(git_object)* obj);
+git_object_t git_object_type (scope const(git_object)* obj);
 
-git_repository* git_object_owner (const(git_object)* obj);
+git_repository* git_object_owner (scope const(git_object)* obj);
 
-void git_object_free (scope ref git_object object);
+void git_object_free (scope git_object* object);
 
 const(char)* git_object_type2string (git_object_t type);
 
@@ -600,14 +741,14 @@ git_object_t git_object_string2type (const(char)* str);
 int git_object_typeisloose (git_object_t type);
 
 int git_object_peel (
-    git_object** peeled,
-    const(git_object)* object,
+    scope out git_object* peeled,
+    scope const(git_object)* object,
     git_object_t target_type);
 
-int git_object_dup (git_object** dest, git_object* source);
+int git_object_dup (scope out git_object* dest, scope git_object* source);
 
 int git_object_rawcontent_is_valid (
-    int* valid,
+    out int valid,
     const(char)* buf,
     size_t len,
     git_object_t object_type);
@@ -662,7 +803,7 @@ git_filemode_t git_tree_entry_filemode_raw (const(git_tree_entry)* entry);
 int git_tree_entry_cmp (const(git_tree_entry)* e1, const(git_tree_entry)* e2);
 
 int git_tree_entry_to_object (
-    git_object** object_out,
+    scope out git_object* object_out,
     scope git_repository* repo,
     const(git_tree_entry)* entry);
 
@@ -712,6 +853,9 @@ enum git_treewalk_mode
     GIT_TREEWALK_POST = 1
 }
 
+alias GIT_TREEWALK_PRE = git_treewalk_mode.GIT_TREEWALK_PRE;
+alias GIT_TREEWALK_POST = git_treewalk_mode.GIT_TREEWALK_POST;
+
 int git_tree_walk (
     const(git_tree)* tree,
     git_treewalk_mode mode,
@@ -726,6 +870,9 @@ enum git_tree_update_t
 
     GIT_TREE_UPDATE_REMOVE = 1
 }
+
+alias GIT_TREE_UPDATE_UPSERT = git_tree_update_t.GIT_TREE_UPDATE_UPSERT;
+alias GIT_TREE_UPDATE_REMOVE = git_tree_update_t.GIT_TREE_UPDATE_REMOVE;
 
 struct git_tree_update
 {
@@ -868,6 +1015,11 @@ enum git_reference_format_t
     GIT_REFERENCE_FORMAT_REFSPEC_SHORTHAND = 1u << 2
 }
 
+alias GIT_REFERENCE_FORMAT_NORMAL = git_reference_format_t.GIT_REFERENCE_FORMAT_NORMAL;
+alias GIT_REFERENCE_FORMAT_ALLOW_ONELEVEL = git_reference_format_t.GIT_REFERENCE_FORMAT_ALLOW_ONELEVEL;
+alias GIT_REFERENCE_FORMAT_REFSPEC_PATTERN = git_reference_format_t.GIT_REFERENCE_FORMAT_REFSPEC_PATTERN;
+alias GIT_REFERENCE_FORMAT_REFSPEC_SHORTHAND = git_reference_format_t.GIT_REFERENCE_FORMAT_REFSPEC_SHORTHAND;
+
 int git_reference_normalize_name (
     char* buffer_out,
     size_t buffer_size,
@@ -875,11 +1027,11 @@ int git_reference_normalize_name (
     uint flags);
 
 int git_reference_peel (
-    git_object** out_,
+    scope out git_object* out_,
     const(git_reference)* ref_,
     git_object_t type);
 
-int git_reference_name_is_valid (int* valid, const(char)* refname);
+int git_reference_name_is_valid (out int valid, const(char)* refname);
 
 const(char)* git_reference_shorthand (const(git_reference)* ref_);
 
@@ -948,6 +1100,38 @@ enum git_diff_option_t
     GIT_DIFF_SHOW_BINARY = 1u << 30
 }
 
+alias GIT_DIFF_NORMAL = git_diff_option_t.GIT_DIFF_NORMAL;
+alias GIT_DIFF_REVERSE = git_diff_option_t.GIT_DIFF_REVERSE;
+alias GIT_DIFF_INCLUDE_IGNORED = git_diff_option_t.GIT_DIFF_INCLUDE_IGNORED;
+alias GIT_DIFF_RECURSE_IGNORED_DIRS = git_diff_option_t.GIT_DIFF_RECURSE_IGNORED_DIRS;
+alias GIT_DIFF_INCLUDE_UNTRACKED = git_diff_option_t.GIT_DIFF_INCLUDE_UNTRACKED;
+alias GIT_DIFF_RECURSE_UNTRACKED_DIRS = git_diff_option_t.GIT_DIFF_RECURSE_UNTRACKED_DIRS;
+alias GIT_DIFF_INCLUDE_UNMODIFIED = git_diff_option_t.GIT_DIFF_INCLUDE_UNMODIFIED;
+alias GIT_DIFF_INCLUDE_TYPECHANGE = git_diff_option_t.GIT_DIFF_INCLUDE_TYPECHANGE;
+alias GIT_DIFF_INCLUDE_TYPECHANGE_TREES = git_diff_option_t.GIT_DIFF_INCLUDE_TYPECHANGE_TREES;
+alias GIT_DIFF_IGNORE_FILEMODE = git_diff_option_t.GIT_DIFF_IGNORE_FILEMODE;
+alias GIT_DIFF_IGNORE_SUBMODULES = git_diff_option_t.GIT_DIFF_IGNORE_SUBMODULES;
+alias GIT_DIFF_IGNORE_CASE = git_diff_option_t.GIT_DIFF_IGNORE_CASE;
+alias GIT_DIFF_INCLUDE_CASECHANGE = git_diff_option_t.GIT_DIFF_INCLUDE_CASECHANGE;
+alias GIT_DIFF_DISABLE_PATHSPEC_MATCH = git_diff_option_t.GIT_DIFF_DISABLE_PATHSPEC_MATCH;
+alias GIT_DIFF_SKIP_BINARY_CHECK = git_diff_option_t.GIT_DIFF_SKIP_BINARY_CHECK;
+alias GIT_DIFF_ENABLE_FAST_UNTRACKED_DIRS = git_diff_option_t.GIT_DIFF_ENABLE_FAST_UNTRACKED_DIRS;
+alias GIT_DIFF_UPDATE_INDEX = git_diff_option_t.GIT_DIFF_UPDATE_INDEX;
+alias GIT_DIFF_INCLUDE_UNREADABLE = git_diff_option_t.GIT_DIFF_INCLUDE_UNREADABLE;
+alias GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED = git_diff_option_t.GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED;
+alias GIT_DIFF_INDENT_HEURISTIC = git_diff_option_t.GIT_DIFF_INDENT_HEURISTIC;
+alias GIT_DIFF_IGNORE_BLANK_LINES = git_diff_option_t.GIT_DIFF_IGNORE_BLANK_LINES;
+alias GIT_DIFF_FORCE_TEXT = git_diff_option_t.GIT_DIFF_FORCE_TEXT;
+alias GIT_DIFF_FORCE_BINARY = git_diff_option_t.GIT_DIFF_FORCE_BINARY;
+alias GIT_DIFF_IGNORE_WHITESPACE = git_diff_option_t.GIT_DIFF_IGNORE_WHITESPACE;
+alias GIT_DIFF_IGNORE_WHITESPACE_CHANGE = git_diff_option_t.GIT_DIFF_IGNORE_WHITESPACE_CHANGE;
+alias GIT_DIFF_IGNORE_WHITESPACE_EOL = git_diff_option_t.GIT_DIFF_IGNORE_WHITESPACE_EOL;
+alias GIT_DIFF_SHOW_UNTRACKED_CONTENT = git_diff_option_t.GIT_DIFF_SHOW_UNTRACKED_CONTENT;
+alias GIT_DIFF_SHOW_UNMODIFIED = git_diff_option_t.GIT_DIFF_SHOW_UNMODIFIED;
+alias GIT_DIFF_PATIENCE = git_diff_option_t.GIT_DIFF_PATIENCE;
+alias GIT_DIFF_MINIMAL = git_diff_option_t.GIT_DIFF_MINIMAL;
+alias GIT_DIFF_SHOW_BINARY = git_diff_option_t.GIT_DIFF_SHOW_BINARY;
+
 struct git_diff;
 
 enum git_diff_flag_t
@@ -958,6 +1142,12 @@ enum git_diff_flag_t
     GIT_DIFF_FLAG_EXISTS = 1u << 3,
     GIT_DIFF_FLAG_VALID_SIZE = 1u << 4
 }
+
+alias GIT_DIFF_FLAG_BINARY = git_diff_flag_t.GIT_DIFF_FLAG_BINARY;
+alias GIT_DIFF_FLAG_NOT_BINARY = git_diff_flag_t.GIT_DIFF_FLAG_NOT_BINARY;
+alias GIT_DIFF_FLAG_VALID_ID = git_diff_flag_t.GIT_DIFF_FLAG_VALID_ID;
+alias GIT_DIFF_FLAG_EXISTS = git_diff_flag_t.GIT_DIFF_FLAG_EXISTS;
+alias GIT_DIFF_FLAG_VALID_SIZE = git_diff_flag_t.GIT_DIFF_FLAG_VALID_SIZE;
 
 enum git_delta_t
 {
@@ -973,6 +1163,18 @@ enum git_delta_t
     GIT_DELTA_UNREADABLE = 9,
     GIT_DELTA_CONFLICTED = 10
 }
+
+alias GIT_DELTA_UNMODIFIED = git_delta_t.GIT_DELTA_UNMODIFIED;
+alias GIT_DELTA_ADDED = git_delta_t.GIT_DELTA_ADDED;
+alias GIT_DELTA_DELETED = git_delta_t.GIT_DELTA_DELETED;
+alias GIT_DELTA_MODIFIED = git_delta_t.GIT_DELTA_MODIFIED;
+alias GIT_DELTA_RENAMED = git_delta_t.GIT_DELTA_RENAMED;
+alias GIT_DELTA_COPIED = git_delta_t.GIT_DELTA_COPIED;
+alias GIT_DELTA_IGNORED = git_delta_t.GIT_DELTA_IGNORED;
+alias GIT_DELTA_UNTRACKED = git_delta_t.GIT_DELTA_UNTRACKED;
+alias GIT_DELTA_TYPECHANGE = git_delta_t.GIT_DELTA_TYPECHANGE;
+alias GIT_DELTA_UNREADABLE = git_delta_t.GIT_DELTA_UNREADABLE;
+alias GIT_DELTA_CONFLICTED = git_delta_t.GIT_DELTA_CONFLICTED;
 
 struct git_diff_file
 {
@@ -1031,6 +1233,8 @@ struct git_diff_options
 
     uint interhunk_lines;
 
+    git_oid_t oid_type;
+
     ushort id_abbrev;
 
     git_off_t max_size;
@@ -1040,7 +1244,7 @@ struct git_diff_options
     const(char)* new_prefix;
 }
 
-int git_diff_options_init (git_diff_options* opts, uint version_);
+int git_diff_options_init (scope ref git_diff_options opts, uint version_);
 
 alias git_diff_file_cb = int function (
     const(git_diff_delta)* delta,
@@ -1055,6 +1259,10 @@ enum git_diff_binary_t
 
     GIT_DIFF_BINARY_DELTA = 2
 }
+
+alias GIT_DIFF_BINARY_NONE = git_diff_binary_t.GIT_DIFF_BINARY_NONE;
+alias GIT_DIFF_BINARY_LITERAL = git_diff_binary_t.GIT_DIFF_BINARY_LITERAL;
+alias GIT_DIFF_BINARY_DELTA = git_diff_binary_t.GIT_DIFF_BINARY_DELTA;
 
 struct git_diff_binary_file
 {
@@ -1109,6 +1317,16 @@ enum git_diff_line_t
     GIT_DIFF_LINE_BINARY = 'B'
 }
 
+alias GIT_DIFF_LINE_CONTEXT = git_diff_line_t.GIT_DIFF_LINE_CONTEXT;
+alias GIT_DIFF_LINE_ADDITION = git_diff_line_t.GIT_DIFF_LINE_ADDITION;
+alias GIT_DIFF_LINE_DELETION = git_diff_line_t.GIT_DIFF_LINE_DELETION;
+alias GIT_DIFF_LINE_CONTEXT_EOFNL = git_diff_line_t.GIT_DIFF_LINE_CONTEXT_EOFNL;
+alias GIT_DIFF_LINE_ADD_EOFNL = git_diff_line_t.GIT_DIFF_LINE_ADD_EOFNL;
+alias GIT_DIFF_LINE_DEL_EOFNL = git_diff_line_t.GIT_DIFF_LINE_DEL_EOFNL;
+alias GIT_DIFF_LINE_FILE_HDR = git_diff_line_t.GIT_DIFF_LINE_FILE_HDR;
+alias GIT_DIFF_LINE_HUNK_HDR = git_diff_line_t.GIT_DIFF_LINE_HUNK_HDR;
+alias GIT_DIFF_LINE_BINARY = git_diff_line_t.GIT_DIFF_LINE_BINARY;
+
 struct git_diff_line
 {
     char origin;
@@ -1161,6 +1379,23 @@ enum git_diff_find_t
     GIT_DIFF_FIND_REMOVE_UNMODIFIED = 1u << 16
 }
 
+alias GIT_DIFF_FIND_BY_CONFIG = git_diff_find_t.GIT_DIFF_FIND_BY_CONFIG;
+alias GIT_DIFF_FIND_RENAMES = git_diff_find_t.GIT_DIFF_FIND_RENAMES;
+alias GIT_DIFF_FIND_RENAMES_FROM_REWRITES = git_diff_find_t.GIT_DIFF_FIND_RENAMES_FROM_REWRITES;
+alias GIT_DIFF_FIND_COPIES = git_diff_find_t.GIT_DIFF_FIND_COPIES;
+alias GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED = git_diff_find_t.GIT_DIFF_FIND_COPIES_FROM_UNMODIFIED;
+alias GIT_DIFF_FIND_REWRITES = git_diff_find_t.GIT_DIFF_FIND_REWRITES;
+alias GIT_DIFF_BREAK_REWRITES = git_diff_find_t.GIT_DIFF_BREAK_REWRITES;
+alias GIT_DIFF_FIND_AND_BREAK_REWRITES = git_diff_find_t.GIT_DIFF_FIND_AND_BREAK_REWRITES;
+alias GIT_DIFF_FIND_FOR_UNTRACKED = git_diff_find_t.GIT_DIFF_FIND_FOR_UNTRACKED;
+alias GIT_DIFF_FIND_ALL = git_diff_find_t.GIT_DIFF_FIND_ALL;
+alias GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE = git_diff_find_t.GIT_DIFF_FIND_IGNORE_LEADING_WHITESPACE;
+alias GIT_DIFF_FIND_IGNORE_WHITESPACE = git_diff_find_t.GIT_DIFF_FIND_IGNORE_WHITESPACE;
+alias GIT_DIFF_FIND_DONT_IGNORE_WHITESPACE = git_diff_find_t.GIT_DIFF_FIND_DONT_IGNORE_WHITESPACE;
+alias GIT_DIFF_FIND_EXACT_MATCH_ONLY = git_diff_find_t.GIT_DIFF_FIND_EXACT_MATCH_ONLY;
+alias GIT_DIFF_BREAK_REWRITES_FOR_RENAMES_ONLY = git_diff_find_t.GIT_DIFF_BREAK_REWRITES_FOR_RENAMES_ONLY;
+alias GIT_DIFF_FIND_REMOVE_UNMODIFIED = git_diff_find_t.GIT_DIFF_FIND_REMOVE_UNMODIFIED;
+
 struct git_diff_similarity_metric
 {
     int function (
@@ -1198,7 +1433,7 @@ struct git_diff_find_options
     git_diff_similarity_metric* metric;
 }
 
-int git_diff_find_options_init (git_diff_find_options* opts, uint version_);
+int git_diff_find_options_init (scope ref git_diff_find_options opts, uint version_);
 
 void git_diff_free (git_diff* diff);
 
@@ -1207,45 +1442,45 @@ int git_diff_tree_to_tree (
     scope git_repository* repo,
     git_tree* old_tree,
     git_tree* new_tree,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_tree_to_index (
     git_diff** diff,
     scope git_repository* repo,
     git_tree* old_tree,
     git_index* index,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_index_to_workdir (
     git_diff** diff,
     scope git_repository* repo,
     git_index* index,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_tree_to_workdir (
     git_diff** diff,
     scope git_repository* repo,
     git_tree* old_tree,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_tree_to_workdir_with_index (
     git_diff** diff,
     scope git_repository* repo,
     git_tree* old_tree,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_index_to_index (
     git_diff** diff,
     scope git_repository* repo,
     git_index* old_index,
     git_index* new_index,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_diff_merge (git_diff* onto, const(git_diff)* from);
 
 int git_diff_find_similar (
     git_diff* diff,
-    const(git_diff_find_options)* options);
+    scope const ref git_diff_find_options options);
 
 size_t git_diff_num_deltas (const(git_diff)* diff);
 
@@ -1275,6 +1510,13 @@ enum git_diff_format_t
     GIT_DIFF_FORMAT_PATCH_ID = 6u
 }
 
+alias GIT_DIFF_FORMAT_PATCH = git_diff_format_t.GIT_DIFF_FORMAT_PATCH;
+alias GIT_DIFF_FORMAT_PATCH_HEADER = git_diff_format_t.GIT_DIFF_FORMAT_PATCH_HEADER;
+alias GIT_DIFF_FORMAT_RAW = git_diff_format_t.GIT_DIFF_FORMAT_RAW;
+alias GIT_DIFF_FORMAT_NAME_ONLY = git_diff_format_t.GIT_DIFF_FORMAT_NAME_ONLY;
+alias GIT_DIFF_FORMAT_NAME_STATUS = git_diff_format_t.GIT_DIFF_FORMAT_NAME_STATUS;
+alias GIT_DIFF_FORMAT_PATCH_ID = git_diff_format_t.GIT_DIFF_FORMAT_PATCH_ID;
+
 int git_diff_print (
     git_diff* diff,
     git_diff_format_t format,
@@ -1288,7 +1530,7 @@ int git_diff_blobs (
     const(char)* old_as_path,
     const(git_blob)* new_blob,
     const(char)* new_as_path,
-    const(git_diff_options)* options,
+    scope const ref git_diff_options options,
     git_diff_file_cb file_cb,
     git_diff_binary_cb binary_cb,
     git_diff_hunk_cb hunk_cb,
@@ -1301,7 +1543,7 @@ int git_diff_blob_to_buffer (
     const(char)* buffer,
     size_t buffer_len,
     const(char)* buffer_as_path,
-    const(git_diff_options)* options,
+    scope const ref git_diff_options options,
     git_diff_file_cb file_cb,
     git_diff_binary_cb binary_cb,
     git_diff_hunk_cb hunk_cb,
@@ -1315,12 +1557,18 @@ int git_diff_buffers (
     const(void)* new_buffer,
     size_t new_len,
     const(char)* new_as_path,
-    const(git_diff_options)* options,
+    scope const ref git_diff_options options,
     git_diff_file_cb file_cb,
     git_diff_binary_cb binary_cb,
     git_diff_hunk_cb hunk_cb,
     git_diff_line_cb line_cb,
     void* payload);
+
+struct git_diff_parse_options
+{
+    uint version_;
+    git_oid_t oid_type;
+}
 
 int git_diff_from_buffer (
     git_diff** out_,
@@ -1341,6 +1589,12 @@ enum git_diff_stats_format_t
 
     GIT_DIFF_STATS_INCLUDE_SUMMARY = 1u << 3
 }
+
+alias GIT_DIFF_STATS_NONE = git_diff_stats_format_t.GIT_DIFF_STATS_NONE;
+alias GIT_DIFF_STATS_FULL = git_diff_stats_format_t.GIT_DIFF_STATS_FULL;
+alias GIT_DIFF_STATS_SHORT = git_diff_stats_format_t.GIT_DIFF_STATS_SHORT;
+alias GIT_DIFF_STATS_NUMBER = git_diff_stats_format_t.GIT_DIFF_STATS_NUMBER;
+alias GIT_DIFF_STATS_INCLUDE_SUMMARY = git_diff_stats_format_t.GIT_DIFF_STATS_INCLUDE_SUMMARY;
 
 int git_diff_get_stats (git_diff_stats** out_, git_diff* diff);
 
@@ -1364,10 +1618,10 @@ struct git_diff_patchid_options
 }
 
 int git_diff_patchid_options_init (
-    git_diff_patchid_options* opts,
+    scope ref git_diff_patchid_options opts,
     uint version_);
 
-int git_diff_patchid (git_oid* out_, git_diff* diff, git_diff_patchid_options* opts);
+int git_diff_patchid (git_oid* out_, git_diff* diff, scope ref git_diff_patchid_options opts);
 
 alias git_apply_delta_cb = int function (
     const(git_diff_delta)* delta,
@@ -1382,6 +1636,8 @@ enum git_apply_flags_t
     GIT_APPLY_CHECK = 1 << 0
 }
 
+alias GIT_APPLY_CHECK = git_apply_flags_t.GIT_APPLY_CHECK;
+
 struct git_apply_options
 {
     uint version_;
@@ -1395,14 +1651,14 @@ struct git_apply_options
     uint flags;
 }
 
-int git_apply_options_init (git_apply_options* opts, uint version_);
+int git_apply_options_init (scope ref git_apply_options opts, uint version_);
 
 int git_apply_to_tree (
     git_index** out_,
     scope git_repository* repo,
     git_tree* preimage,
     git_diff* diff,
-    const(git_apply_options)* options);
+    scope const ref git_apply_options options);
 
 enum git_apply_location_t
 {
@@ -1413,11 +1669,15 @@ enum git_apply_location_t
     GIT_APPLY_LOCATION_BOTH = 2
 }
 
+alias GIT_APPLY_LOCATION_WORKDIR = git_apply_location_t.GIT_APPLY_LOCATION_WORKDIR;
+alias GIT_APPLY_LOCATION_INDEX = git_apply_location_t.GIT_APPLY_LOCATION_INDEX;
+alias GIT_APPLY_LOCATION_BOTH = git_apply_location_t.GIT_APPLY_LOCATION_BOTH;
+
 int git_apply (
     scope git_repository* repo,
     git_diff* diff,
     git_apply_location_t location,
-    const(git_apply_options)* options);
+    scope const ref git_apply_options options);
 
 enum git_attr_value_t
 {
@@ -1426,6 +1686,11 @@ enum git_attr_value_t
     GIT_ATTR_VALUE_FALSE = 2,
     GIT_ATTR_VALUE_STRING = 3
 }
+
+alias GIT_ATTR_VALUE_UNSPECIFIED = git_attr_value_t.GIT_ATTR_VALUE_UNSPECIFIED;
+alias GIT_ATTR_VALUE_TRUE = git_attr_value_t.GIT_ATTR_VALUE_TRUE;
+alias GIT_ATTR_VALUE_FALSE = git_attr_value_t.GIT_ATTR_VALUE_FALSE;
+alias GIT_ATTR_VALUE_STRING = git_attr_value_t.GIT_ATTR_VALUE_STRING;
 
 git_attr_value_t git_attr_value (const(char)* attr);
 
@@ -1450,7 +1715,7 @@ int git_attr_get (
 int git_attr_get_ext (
     const(char*)* value_out,
     scope git_repository* repo,
-    git_attr_options* opts,
+    scope ref git_attr_options opts,
     const(char)* path,
     const(char)* name);
 
@@ -1465,7 +1730,7 @@ int git_attr_get_many (
 int git_attr_get_many_ext (
     const(char*)* values_out,
     scope git_repository* repo,
-    git_attr_options* opts,
+    scope ref git_attr_options opts,
     const(char)* path,
     size_t num_attr,
     const(char*)* names);
@@ -1481,7 +1746,7 @@ int git_attr_foreach (
 
 int git_attr_foreach_ext (
     scope git_repository* repo,
-    git_attr_options* opts,
+    scope ref git_attr_options opts,
     const(char)* path,
     git_attr_foreach_cb callback,
     void* payload);
@@ -1518,6 +1783,11 @@ enum git_blob_filter_flag_t
     GIT_BLOB_FILTER_ATTRIBUTES_FROM_COMMIT = 1 << 3
 }
 
+alias GIT_BLOB_FILTER_CHECK_FOR_BINARY = git_blob_filter_flag_t.GIT_BLOB_FILTER_CHECK_FOR_BINARY;
+alias GIT_BLOB_FILTER_NO_SYSTEM_ATTRIBUTES = git_blob_filter_flag_t.GIT_BLOB_FILTER_NO_SYSTEM_ATTRIBUTES;
+alias GIT_BLOB_FILTER_ATTRIBUTES_FROM_HEAD = git_blob_filter_flag_t.GIT_BLOB_FILTER_ATTRIBUTES_FROM_HEAD;
+alias GIT_BLOB_FILTER_ATTRIBUTES_FROM_COMMIT = git_blob_filter_flag_t.GIT_BLOB_FILTER_ATTRIBUTES_FROM_COMMIT;
+
 struct git_blob_filter_options
 {
     int version_;
@@ -1529,13 +1799,13 @@ struct git_blob_filter_options
     git_oid attr_commit_id;
 }
 
-int git_blob_filter_options_init (git_blob_filter_options* opts, uint version_);
+int git_blob_filter_options_init (scope ref git_blob_filter_options opts, uint version_);
 
 int git_blob_filter (
     git_buf* out_,
     git_blob* blob,
     const(char)* as_path,
-    git_blob_filter_options* opts);
+    scope ref git_blob_filter_options opts);
 
 int git_blob_create_from_workdir (git_oid* id, scope git_repository* repo, const(char)* relative_path);
 
@@ -1579,6 +1849,15 @@ enum git_blame_flag_t
     GIT_BLAME_IGNORE_WHITESPACE = 1 << 6
 }
 
+alias GIT_BLAME_NORMAL = git_blame_flag_t.GIT_BLAME_NORMAL;
+alias GIT_BLAME_TRACK_COPIES_SAME_FILE = git_blame_flag_t.GIT_BLAME_TRACK_COPIES_SAME_FILE;
+alias GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES = git_blame_flag_t.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES;
+alias GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES = git_blame_flag_t.GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES;
+alias GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES = git_blame_flag_t.GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES;
+alias GIT_BLAME_FIRST_PARENT = git_blame_flag_t.GIT_BLAME_FIRST_PARENT;
+alias GIT_BLAME_USE_MAILMAP = git_blame_flag_t.GIT_BLAME_USE_MAILMAP;
+alias GIT_BLAME_IGNORE_WHITESPACE = git_blame_flag_t.GIT_BLAME_IGNORE_WHITESPACE;
+
 struct git_blame_options
 {
     uint version_;
@@ -1596,7 +1875,7 @@ struct git_blame_options
     size_t max_line;
 }
 
-int git_blame_options_init (git_blame_options* opts, uint version_);
+int git_blame_options_init (scope ref git_blame_options opts, uint version_);
 
 struct git_blame_hunk
 {
@@ -1635,7 +1914,7 @@ int git_blame_file (
     git_blame** out_,
     scope git_repository* repo,
     const(char)* path,
-    git_blame_options* options);
+    scope ref git_blame_options options);
 
 int git_blame_buffer (
     git_blame** out_,
@@ -1649,7 +1928,7 @@ int git_branch_create (
     git_reference** out_,
     scope git_repository* repo,
     const(char)* branch_name,
-    scope git_commit* target,
+    const(git_commit)* target,
     int force);
 
 int git_branch_create_from_annotated (
@@ -1708,7 +1987,7 @@ int git_branch_upstream_remote (git_buf* buf, scope git_repository* repo, const(
 
 int git_branch_upstream_merge (git_buf* buf, scope git_repository* repo, const(char)* refname);
 
-int git_branch_name_is_valid (int* valid, const(char)* name);
+int git_branch_name_is_valid (out int valid, const(char)* name);
 
 enum git_cert_t
 {
@@ -1720,6 +1999,11 @@ enum git_cert_t
 
     GIT_CERT_STRARRAY = 3
 }
+
+alias GIT_CERT_NONE = git_cert_t.GIT_CERT_NONE;
+alias GIT_CERT_X509 = git_cert_t.GIT_CERT_X509;
+alias GIT_CERT_HOSTKEY_LIBSSH2 = git_cert_t.GIT_CERT_HOSTKEY_LIBSSH2;
+alias GIT_CERT_STRARRAY = git_cert_t.GIT_CERT_STRARRAY;
 
 struct git_cert
 {
@@ -1739,6 +2023,11 @@ enum git_cert_ssh_t
     GIT_CERT_SSH_RAW = 1 << 3
 }
 
+alias GIT_CERT_SSH_MD5 = git_cert_ssh_t.GIT_CERT_SSH_MD5;
+alias GIT_CERT_SSH_SHA1 = git_cert_ssh_t.GIT_CERT_SSH_SHA1;
+alias GIT_CERT_SSH_SHA256 = git_cert_ssh_t.GIT_CERT_SSH_SHA256;
+alias GIT_CERT_SSH_RAW = git_cert_ssh_t.GIT_CERT_SSH_RAW;
+
 enum git_cert_ssh_raw_type_t
 {
     GIT_CERT_SSH_RAW_TYPE_UNKNOWN = 0,
@@ -1755,6 +2044,14 @@ enum git_cert_ssh_raw_type_t
 
     GIT_CERT_SSH_RAW_TYPE_KEY_ED25519 = 6
 }
+
+alias GIT_CERT_SSH_RAW_TYPE_UNKNOWN = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_UNKNOWN;
+alias GIT_CERT_SSH_RAW_TYPE_RSA = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_RSA;
+alias GIT_CERT_SSH_RAW_TYPE_DSS = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_DSS;
+alias GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_256 = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_256;
+alias GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_384 = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_384;
+alias GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_521 = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_521;
+alias GIT_CERT_SSH_RAW_TYPE_KEY_ED25519 = git_cert_ssh_raw_type_t.GIT_CERT_SSH_RAW_TYPE_KEY_ED25519;
 
 struct git_cert_hostkey
 {
@@ -1835,6 +2132,31 @@ enum git_checkout_strategy_t
     GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = 1u << 17
 }
 
+alias GIT_CHECKOUT_NONE = git_checkout_strategy_t.GIT_CHECKOUT_NONE;
+alias GIT_CHECKOUT_SAFE = git_checkout_strategy_t.GIT_CHECKOUT_SAFE;
+alias GIT_CHECKOUT_FORCE = git_checkout_strategy_t.GIT_CHECKOUT_FORCE;
+alias GIT_CHECKOUT_RECREATE_MISSING = git_checkout_strategy_t.GIT_CHECKOUT_RECREATE_MISSING;
+alias GIT_CHECKOUT_ALLOW_CONFLICTS = git_checkout_strategy_t.GIT_CHECKOUT_ALLOW_CONFLICTS;
+alias GIT_CHECKOUT_REMOVE_UNTRACKED = git_checkout_strategy_t.GIT_CHECKOUT_REMOVE_UNTRACKED;
+alias GIT_CHECKOUT_REMOVE_IGNORED = git_checkout_strategy_t.GIT_CHECKOUT_REMOVE_IGNORED;
+alias GIT_CHECKOUT_UPDATE_ONLY = git_checkout_strategy_t.GIT_CHECKOUT_UPDATE_ONLY;
+alias GIT_CHECKOUT_DONT_UPDATE_INDEX = git_checkout_strategy_t.GIT_CHECKOUT_DONT_UPDATE_INDEX;
+alias GIT_CHECKOUT_NO_REFRESH = git_checkout_strategy_t.GIT_CHECKOUT_NO_REFRESH;
+alias GIT_CHECKOUT_SKIP_UNMERGED = git_checkout_strategy_t.GIT_CHECKOUT_SKIP_UNMERGED;
+alias GIT_CHECKOUT_USE_OURS = git_checkout_strategy_t.GIT_CHECKOUT_USE_OURS;
+alias GIT_CHECKOUT_USE_THEIRS = git_checkout_strategy_t.GIT_CHECKOUT_USE_THEIRS;
+alias GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH = git_checkout_strategy_t.GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH;
+alias GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES = git_checkout_strategy_t.GIT_CHECKOUT_SKIP_LOCKED_DIRECTORIES;
+alias GIT_CHECKOUT_DONT_OVERWRITE_IGNORED = git_checkout_strategy_t.GIT_CHECKOUT_DONT_OVERWRITE_IGNORED;
+alias GIT_CHECKOUT_CONFLICT_STYLE_MERGE = git_checkout_strategy_t.GIT_CHECKOUT_CONFLICT_STYLE_MERGE;
+alias GIT_CHECKOUT_CONFLICT_STYLE_DIFF3 = git_checkout_strategy_t.GIT_CHECKOUT_CONFLICT_STYLE_DIFF3;
+alias GIT_CHECKOUT_DONT_REMOVE_EXISTING = git_checkout_strategy_t.GIT_CHECKOUT_DONT_REMOVE_EXISTING;
+alias GIT_CHECKOUT_DONT_WRITE_INDEX = git_checkout_strategy_t.GIT_CHECKOUT_DONT_WRITE_INDEX;
+alias GIT_CHECKOUT_DRY_RUN = git_checkout_strategy_t.GIT_CHECKOUT_DRY_RUN;
+alias GIT_CHECKOUT_CONFLICT_STYLE_ZDIFF3 = git_checkout_strategy_t.GIT_CHECKOUT_CONFLICT_STYLE_ZDIFF3;
+alias GIT_CHECKOUT_UPDATE_SUBMODULES = git_checkout_strategy_t.GIT_CHECKOUT_UPDATE_SUBMODULES;
+alias GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED = git_checkout_strategy_t.GIT_CHECKOUT_UPDATE_SUBMODULES_IF_CHANGED;
+
 enum git_checkout_notify_t
 {
     GIT_CHECKOUT_NOTIFY_NONE = 0,
@@ -1851,6 +2173,14 @@ enum git_checkout_notify_t
 
     GIT_CHECKOUT_NOTIFY_ALL = 0x0FFFFu
 }
+
+alias GIT_CHECKOUT_NOTIFY_NONE = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_NONE;
+alias GIT_CHECKOUT_NOTIFY_CONFLICT = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_CONFLICT;
+alias GIT_CHECKOUT_NOTIFY_DIRTY = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_DIRTY;
+alias GIT_CHECKOUT_NOTIFY_UPDATED = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_UPDATED;
+alias GIT_CHECKOUT_NOTIFY_UNTRACKED = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_UNTRACKED;
+alias GIT_CHECKOUT_NOTIFY_IGNORED = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_IGNORED;
+alias GIT_CHECKOUT_NOTIFY_ALL = git_checkout_notify_t.GIT_CHECKOUT_NOTIFY_ALL;
 
 struct git_checkout_perfdata
 {
@@ -1915,19 +2245,19 @@ struct git_checkout_options
     void* perfdata_payload;
 }
 
-int git_checkout_options_init (git_checkout_options* opts, uint version_);
+int git_checkout_options_init (scope ref git_checkout_options opts, uint version_);
 
-int git_checkout_head (scope git_repository* repo, const(git_checkout_options)* opts);
+int git_checkout_head (scope git_repository* repo, scope const ref git_checkout_options opts);
 
 int git_checkout_index (
     scope git_repository* repo,
     git_index* index,
-    const(git_checkout_options)* opts);
+    scope const ref git_checkout_options opts);
 
 int git_checkout_tree (
     scope git_repository* repo,
-    const(git_object)* treeish,
-    const(git_checkout_options)* opts);
+    scope const(git_object)* treeish,
+    scope const ref git_checkout_options opts);
 
 struct git_oidarray
 {
@@ -1956,6 +2286,8 @@ struct git_indexer_progress
     size_t received_bytes;
 }
 
+alias git_indexer_progress_cb = int function (const(git_indexer_progress)* stats, void* payload);
+
 struct git_indexer_options
 {
     uint version_;
@@ -1967,14 +2299,14 @@ struct git_indexer_options
     ubyte verify;
 }
 
-int git_indexer_options_init (git_indexer_options* opts, uint version_);
+int git_indexer_options_init (scope ref git_indexer_options opts, uint version_);
 
 int git_indexer_new (
     git_indexer** out_,
     const(char)* path,
     uint mode,
     git_odb* odb,
-    git_indexer_options* opts);
+    scope ref git_indexer_options opts);
 
 int git_indexer_append (git_indexer* idx, const(void)* data, size_t size, git_indexer_progress* stats);
 
@@ -2019,6 +2351,9 @@ enum git_index_entry_flag_t
     GIT_INDEX_ENTRY_VALID = 0x8000
 }
 
+alias GIT_INDEX_ENTRY_EXTENDED = git_index_entry_flag_t.GIT_INDEX_ENTRY_EXTENDED;
+alias GIT_INDEX_ENTRY_VALID = git_index_entry_flag_t.GIT_INDEX_ENTRY_VALID;
+
 enum git_index_entry_extended_flag_t
 {
     GIT_INDEX_ENTRY_INTENT_TO_ADD = 1 << 13,
@@ -2029,6 +2364,11 @@ enum git_index_entry_extended_flag_t
     GIT_INDEX_ENTRY_UPTODATE = 1 << 2
 }
 
+alias GIT_INDEX_ENTRY_INTENT_TO_ADD = git_index_entry_extended_flag_t.GIT_INDEX_ENTRY_INTENT_TO_ADD;
+alias GIT_INDEX_ENTRY_SKIP_WORKTREE = git_index_entry_extended_flag_t.GIT_INDEX_ENTRY_SKIP_WORKTREE;
+alias GIT_INDEX_ENTRY_EXTENDED_FLAGS = git_index_entry_extended_flag_t.GIT_INDEX_ENTRY_EXTENDED_FLAGS;
+alias GIT_INDEX_ENTRY_UPTODATE = git_index_entry_extended_flag_t.GIT_INDEX_ENTRY_UPTODATE;
+
 enum git_index_capability_t
 {
     GIT_INDEX_CAPABILITY_IGNORE_CASE = 1,
@@ -2036,6 +2376,11 @@ enum git_index_capability_t
     GIT_INDEX_CAPABILITY_NO_SYMLINKS = 4,
     GIT_INDEX_CAPABILITY_FROM_OWNER = -1
 }
+
+alias GIT_INDEX_CAPABILITY_IGNORE_CASE = git_index_capability_t.GIT_INDEX_CAPABILITY_IGNORE_CASE;
+alias GIT_INDEX_CAPABILITY_NO_FILEMODE = git_index_capability_t.GIT_INDEX_CAPABILITY_NO_FILEMODE;
+alias GIT_INDEX_CAPABILITY_NO_SYMLINKS = git_index_capability_t.GIT_INDEX_CAPABILITY_NO_SYMLINKS;
+alias GIT_INDEX_CAPABILITY_FROM_OWNER = git_index_capability_t.GIT_INDEX_CAPABILITY_FROM_OWNER;
 
 alias git_index_matched_path_cb = int function (
     const(char)* path,
@@ -2050,6 +2395,11 @@ enum git_index_add_option_t
     GIT_INDEX_ADD_CHECK_PATHSPEC = 1u << 2
 }
 
+alias GIT_INDEX_ADD_DEFAULT = git_index_add_option_t.GIT_INDEX_ADD_DEFAULT;
+alias GIT_INDEX_ADD_FORCE = git_index_add_option_t.GIT_INDEX_ADD_FORCE;
+alias GIT_INDEX_ADD_DISABLE_PATHSPEC_MATCH = git_index_add_option_t.GIT_INDEX_ADD_DISABLE_PATHSPEC_MATCH;
+alias GIT_INDEX_ADD_CHECK_PATHSPEC = git_index_add_option_t.GIT_INDEX_ADD_CHECK_PATHSPEC;
+
 enum git_index_stage_t
 {
     GIT_INDEX_STAGE_ANY = -1,
@@ -2062,6 +2412,12 @@ enum git_index_stage_t
 
     GIT_INDEX_STAGE_THEIRS = 3
 }
+
+alias GIT_INDEX_STAGE_ANY = git_index_stage_t.GIT_INDEX_STAGE_ANY;
+alias GIT_INDEX_STAGE_NORMAL = git_index_stage_t.GIT_INDEX_STAGE_NORMAL;
+alias GIT_INDEX_STAGE_ANCESTOR = git_index_stage_t.GIT_INDEX_STAGE_ANCESTOR;
+alias GIT_INDEX_STAGE_OURS = git_index_stage_t.GIT_INDEX_STAGE_OURS;
+alias GIT_INDEX_STAGE_THEIRS = git_index_stage_t.GIT_INDEX_STAGE_THEIRS;
 
 int git_index_open (git_index** out_, const(char)* index_path);
 
@@ -2136,20 +2492,20 @@ int git_index_remove_bypath (git_index* index, const(char)* path);
 
 int git_index_add_all (
     git_index* index,
-    scope ref git_strarray pathspec,
+    const(git_strarray)* pathspec,
     uint flags,
     git_index_matched_path_cb callback,
     void* payload);
 
 int git_index_remove_all (
     git_index* index,
-    scope ref git_strarray pathspec,
+    const(git_strarray)* pathspec,
     git_index_matched_path_cb callback,
     void* payload);
 
 int git_index_update_all (
     git_index* index,
-    scope ref git_strarray pathspec,
+    const(git_strarray)* pathspec,
     git_index_matched_path_cb callback,
     void* payload);
 
@@ -2216,6 +2572,12 @@ enum git_merge_flag_t
     GIT_MERGE_VIRTUAL_BASE = 1 << 4
 }
 
+alias GIT_MERGE_FIND_RENAMES = git_merge_flag_t.GIT_MERGE_FIND_RENAMES;
+alias GIT_MERGE_FAIL_ON_CONFLICT = git_merge_flag_t.GIT_MERGE_FAIL_ON_CONFLICT;
+alias GIT_MERGE_SKIP_REUC = git_merge_flag_t.GIT_MERGE_SKIP_REUC;
+alias GIT_MERGE_NO_RECURSIVE = git_merge_flag_t.GIT_MERGE_NO_RECURSIVE;
+alias GIT_MERGE_VIRTUAL_BASE = git_merge_flag_t.GIT_MERGE_VIRTUAL_BASE;
+
 enum git_merge_file_favor_t
 {
     GIT_MERGE_FILE_FAVOR_NORMAL = 0,
@@ -2226,6 +2588,11 @@ enum git_merge_file_favor_t
 
     GIT_MERGE_FILE_FAVOR_UNION = 3
 }
+
+alias GIT_MERGE_FILE_FAVOR_NORMAL = git_merge_file_favor_t.GIT_MERGE_FILE_FAVOR_NORMAL;
+alias GIT_MERGE_FILE_FAVOR_OURS = git_merge_file_favor_t.GIT_MERGE_FILE_FAVOR_OURS;
+alias GIT_MERGE_FILE_FAVOR_THEIRS = git_merge_file_favor_t.GIT_MERGE_FILE_FAVOR_THEIRS;
+alias GIT_MERGE_FILE_FAVOR_UNION = git_merge_file_favor_t.GIT_MERGE_FILE_FAVOR_UNION;
 
 enum git_merge_file_flag_t
 {
@@ -2252,6 +2619,18 @@ enum git_merge_file_flag_t
     GIT_MERGE_FILE_ACCEPT_CONFLICTS = 1 << 9
 }
 
+alias GIT_MERGE_FILE_DEFAULT = git_merge_file_flag_t.GIT_MERGE_FILE_DEFAULT;
+alias GIT_MERGE_FILE_STYLE_MERGE = git_merge_file_flag_t.GIT_MERGE_FILE_STYLE_MERGE;
+alias GIT_MERGE_FILE_STYLE_DIFF3 = git_merge_file_flag_t.GIT_MERGE_FILE_STYLE_DIFF3;
+alias GIT_MERGE_FILE_SIMPLIFY_ALNUM = git_merge_file_flag_t.GIT_MERGE_FILE_SIMPLIFY_ALNUM;
+alias GIT_MERGE_FILE_IGNORE_WHITESPACE = git_merge_file_flag_t.GIT_MERGE_FILE_IGNORE_WHITESPACE;
+alias GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE = git_merge_file_flag_t.GIT_MERGE_FILE_IGNORE_WHITESPACE_CHANGE;
+alias GIT_MERGE_FILE_IGNORE_WHITESPACE_EOL = git_merge_file_flag_t.GIT_MERGE_FILE_IGNORE_WHITESPACE_EOL;
+alias GIT_MERGE_FILE_DIFF_PATIENCE = git_merge_file_flag_t.GIT_MERGE_FILE_DIFF_PATIENCE;
+alias GIT_MERGE_FILE_DIFF_MINIMAL = git_merge_file_flag_t.GIT_MERGE_FILE_DIFF_MINIMAL;
+alias GIT_MERGE_FILE_STYLE_ZDIFF3 = git_merge_file_flag_t.GIT_MERGE_FILE_STYLE_ZDIFF3;
+alias GIT_MERGE_FILE_ACCEPT_CONFLICTS = git_merge_file_flag_t.GIT_MERGE_FILE_ACCEPT_CONFLICTS;
+
 struct git_merge_file_options
 {
     uint version_;
@@ -2269,7 +2648,7 @@ struct git_merge_file_options
     ushort marker_size;
 }
 
-int git_merge_file_options_init (git_merge_file_options* opts, uint version_);
+int git_merge_file_options_init (scope ref git_merge_file_options opts, uint version_);
 
 struct git_merge_file_result
 {
@@ -2305,7 +2684,7 @@ struct git_merge_options
     uint file_flags;
 }
 
-int git_merge_options_init (git_merge_options* opts, uint version_);
+int git_merge_options_init (scope ref git_merge_options opts, uint version_);
 
 enum git_merge_analysis_t
 {
@@ -2320,6 +2699,12 @@ enum git_merge_analysis_t
     GIT_MERGE_ANALYSIS_UNBORN = 1 << 3
 }
 
+alias GIT_MERGE_ANALYSIS_NONE = git_merge_analysis_t.GIT_MERGE_ANALYSIS_NONE;
+alias GIT_MERGE_ANALYSIS_NORMAL = git_merge_analysis_t.GIT_MERGE_ANALYSIS_NORMAL;
+alias GIT_MERGE_ANALYSIS_UP_TO_DATE = git_merge_analysis_t.GIT_MERGE_ANALYSIS_UP_TO_DATE;
+alias GIT_MERGE_ANALYSIS_FASTFORWARD = git_merge_analysis_t.GIT_MERGE_ANALYSIS_FASTFORWARD;
+alias GIT_MERGE_ANALYSIS_UNBORN = git_merge_analysis_t.GIT_MERGE_ANALYSIS_UNBORN;
+
 enum git_merge_preference_t
 {
     GIT_MERGE_PREFERENCE_NONE = 0,
@@ -2328,6 +2713,10 @@ enum git_merge_preference_t
 
     GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY = 1 << 1
 }
+
+alias GIT_MERGE_PREFERENCE_NONE = git_merge_preference_t.GIT_MERGE_PREFERENCE_NONE;
+alias GIT_MERGE_PREFERENCE_NO_FASTFORWARD = git_merge_preference_t.GIT_MERGE_PREFERENCE_NO_FASTFORWARD;
+alias GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY = git_merge_preference_t.GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY;
 
 int git_merge_analysis (
     git_merge_analysis_t* analysis_out,
@@ -2379,7 +2768,7 @@ int git_merge_file (
     const(git_merge_file_input)* ancestor,
     const(git_merge_file_input)* ours,
     const(git_merge_file_input)* theirs,
-    const(git_merge_file_options)* opts);
+    scope const ref git_merge_file_options opts);
 
 int git_merge_file_from_index (
     git_merge_file_result* out_,
@@ -2387,7 +2776,7 @@ int git_merge_file_from_index (
     const(git_index_entry)* ancestor,
     const(git_index_entry)* ours,
     const(git_index_entry)* theirs,
-    const(git_merge_file_options)* opts);
+    scope const ref git_merge_file_options opts);
 
 void git_merge_file_result_free (git_merge_file_result* result);
 
@@ -2397,21 +2786,21 @@ int git_merge_trees (
     const(git_tree)* ancestor_tree,
     const(git_tree)* our_tree,
     const(git_tree)* their_tree,
-    const(git_merge_options)* opts);
+    scope const ref git_merge_options opts);
 
 int git_merge_commits (
     git_index** out_,
     scope git_repository* repo,
-    scope git_commit* our_commit,
-    scope git_commit* their_commit,
-    const(git_merge_options)* opts);
+    const(git_commit)* our_commit,
+    const(git_commit)* their_commit,
+    scope const ref git_merge_options opts);
 
 int git_merge (
     scope git_repository* repo,
     const(git_annotated_commit*)* their_heads,
     size_t their_heads_len,
-    const(git_merge_options)* merge_opts,
-    const(git_checkout_options)* checkout_opts);
+    scope const ref git_merge_options merge_opts,
+    scope const ref git_checkout_options checkout_opts);
 
 struct git_cherrypick_options
 {
@@ -2423,26 +2812,29 @@ struct git_cherrypick_options
     git_checkout_options checkout_opts;
 }
 
-int git_cherrypick_options_init (git_cherrypick_options* opts, uint version_);
+int git_cherrypick_options_init (scope ref git_cherrypick_options opts, uint version_);
 
 int git_cherrypick_commit (
     git_index** out_,
     scope git_repository* repo,
-    scope git_commit* cherrypick_commit,
-    scope git_commit* our_commit,
+    git_commit* cherrypick_commit,
+    git_commit* our_commit,
     uint mainline,
-    const(git_merge_options)* merge_options);
+    scope const ref git_merge_options merge_options);
 
 int git_cherrypick (
     scope git_repository* repo,
-    scope git_commit* commit,
-    const(git_cherrypick_options)* cherrypick_options);
+    git_commit* commit,
+    scope const ref git_cherrypick_options cherrypick_options);
 
 enum git_direction
 {
     GIT_DIRECTION_FETCH = 0,
     GIT_DIRECTION_PUSH = 1
 }
+
+alias GIT_DIRECTION_FETCH = git_direction.GIT_DIRECTION_FETCH;
+alias GIT_DIRECTION_PUSH = git_direction.GIT_DIRECTION_PUSH;
 
 struct git_remote_head
 {
@@ -2492,6 +2884,14 @@ enum git_credential_t
 
     GIT_CREDENTIAL_SSH_MEMORY = 1u << 6
 }
+
+alias GIT_CREDENTIAL_USERPASS_PLAINTEXT = git_credential_t.GIT_CREDENTIAL_USERPASS_PLAINTEXT;
+alias GIT_CREDENTIAL_SSH_KEY = git_credential_t.GIT_CREDENTIAL_SSH_KEY;
+alias GIT_CREDENTIAL_SSH_CUSTOM = git_credential_t.GIT_CREDENTIAL_SSH_CUSTOM;
+alias GIT_CREDENTIAL_DEFAULT = git_credential_t.GIT_CREDENTIAL_DEFAULT;
+alias GIT_CREDENTIAL_SSH_INTERACTIVE = git_credential_t.GIT_CREDENTIAL_SSH_INTERACTIVE;
+alias GIT_CREDENTIAL_USERNAME = git_credential_t.GIT_CREDENTIAL_USERNAME;
+alias GIT_CREDENTIAL_SSH_MEMORY = git_credential_t.GIT_CREDENTIAL_SSH_MEMORY;
 
 alias git_credential_default = git_credential;
 
@@ -2584,6 +2984,9 @@ enum git_packbuilder_stage_t
     GIT_PACKBUILDER_DELTAFICATION = 1
 }
 
+alias GIT_PACKBUILDER_ADDING_OBJECTS = git_packbuilder_stage_t.GIT_PACKBUILDER_ADDING_OBJECTS;
+alias GIT_PACKBUILDER_DELTAFICATION = git_packbuilder_stage_t.GIT_PACKBUILDER_DELTAFICATION;
+
 int git_packbuilder_new (git_packbuilder** out_, scope git_repository* repo);
 
 uint git_packbuilder_set_threads (git_packbuilder* pb, uint n);
@@ -2641,6 +3044,10 @@ enum git_proxy_t
     GIT_PROXY_SPECIFIED = 2
 }
 
+alias GIT_PROXY_NONE = git_proxy_t.GIT_PROXY_NONE;
+alias GIT_PROXY_AUTO = git_proxy_t.GIT_PROXY_AUTO;
+alias GIT_PROXY_SPECIFIED = git_proxy_t.GIT_PROXY_SPECIFIED;
+
 struct git_proxy_options
 {
     uint version_;
@@ -2656,7 +3063,7 @@ struct git_proxy_options
     void* payload;
 }
 
-int git_proxy_options_init (git_proxy_options* opts, uint version_);
+int git_proxy_options_init (scope ref git_proxy_options opts, uint version_);
 
 int git_remote_create (
     scope out git_remote* out_,
@@ -2673,12 +3080,19 @@ enum git_remote_redirect_t
     GIT_REMOTE_REDIRECT_ALL = 1 << 2
 }
 
+alias GIT_REMOTE_REDIRECT_NONE = git_remote_redirect_t.GIT_REMOTE_REDIRECT_NONE;
+alias GIT_REMOTE_REDIRECT_INITIAL = git_remote_redirect_t.GIT_REMOTE_REDIRECT_INITIAL;
+alias GIT_REMOTE_REDIRECT_ALL = git_remote_redirect_t.GIT_REMOTE_REDIRECT_ALL;
+
 enum git_remote_create_flags
 {
     GIT_REMOTE_CREATE_SKIP_INSTEADOF = 1 << 0,
 
     GIT_REMOTE_CREATE_SKIP_DEFAULT_FETCHSPEC = 1 << 1
 }
+
+alias GIT_REMOTE_CREATE_SKIP_INSTEADOF = git_remote_create_flags.GIT_REMOTE_CREATE_SKIP_INSTEADOF;
+alias GIT_REMOTE_CREATE_SKIP_DEFAULT_FETCHSPEC = git_remote_create_flags.GIT_REMOTE_CREATE_SKIP_DEFAULT_FETCHSPEC;
 
 struct git_remote_create_options
 {
@@ -2694,39 +3108,39 @@ struct git_remote_create_options
 }
 
 int git_remote_create_options_init (
-    git_remote_create_options* opts,
+    scope ref git_remote_create_options opts,
     uint version_);
 
 int git_remote_create_with_opts (
-    git_remote** out_,
+    scope out git_remote* out_,
     const(char)* url,
-    const(git_remote_create_options)* opts);
+    scope const ref git_remote_create_options opts);
 
 int git_remote_create_with_fetchspec (
-    git_remote** out_,
+    scope out git_remote* out_,
     scope git_repository* repo,
     const(char)* name,
     const(char)* url,
     const(char)* fetch);
 
 int git_remote_create_anonymous (
-    git_remote** out_,
+    scope out git_remote* out_,
     scope git_repository* repo,
     const(char)* url);
 
-int git_remote_create_detached (git_remote** out_, const(char)* url);
+int git_remote_create_detached (scope out git_remote* out_, const(char)* url);
 
-int git_remote_lookup (scope out git_remote* out_, scope ref git_repository repo, const(char)* name);
+int git_remote_lookup (scope out git_remote* out_, scope git_repository* repo, const(char)* name);
 
-int git_remote_dup (git_remote** dest, scope git_remote* source);
+int git_remote_dup (scope out git_remote* dest, scope git_remote* source);
 
-git_repository* git_remote_owner (scope git_remote* remote);
+git_repository* git_remote_owner (scope const(git_remote)* remote);
 
-const(char)* git_remote_name (scope git_remote* remote);
+const(char)* git_remote_name (scope const(git_remote)* remote);
 
-const(char)* git_remote_url (scope git_remote* remote);
+const(char)* git_remote_url (scope const(git_remote)* remote);
 
-const(char)* git_remote_pushurl (scope git_remote* remote);
+const(char)* git_remote_pushurl (scope const(git_remote)* remote);
 
 int git_remote_set_url (scope git_repository* repo, const(char)* remote, const(char)* url);
 
@@ -2738,19 +3152,19 @@ int git_remote_set_instance_pushurl (scope git_remote* remote, const(char)* url)
 
 int git_remote_add_fetch (scope git_repository* repo, const(char)* remote, const(char)* refspec);
 
-int git_remote_get_fetch_refspecs (scope ref git_strarray array, scope git_remote* remote);
+int git_remote_get_fetch_refspecs (scope ref git_strarray array, scope const(git_remote)* remote);
 
 int git_remote_add_push (scope git_repository* repo, const(char)* remote, const(char)* refspec);
 
-int git_remote_get_push_refspecs (scope ref git_strarray array, scope git_remote* remote);
+int git_remote_get_push_refspecs (scope ref git_strarray array, scope const(git_remote)* remote);
 
-size_t git_remote_refspec_count (scope git_remote* remote);
+size_t git_remote_refspec_count (scope const(git_remote)* remote);
 
-const(git_refspec)* git_remote_get_refspec (scope git_remote* remote, size_t n);
+const(git_refspec)* git_remote_get_refspec (scope const(git_remote)* remote, size_t n);
 
 int git_remote_ls (const(git_remote_head**)* out_, size_t* size, scope git_remote* remote);
 
-int git_remote_connected (scope git_remote* remote);
+int git_remote_connected (scope const(git_remote)* remote);
 
 int git_remote_stop (scope git_remote* remote);
 
@@ -2758,7 +3172,7 @@ int git_remote_disconnect (scope git_remote* remote);
 
 void git_remote_free (scope git_remote* remote);
 
-int git_remote_list (scope out git_strarray out_, scope git_repository* repo);
+int git_remote_list (scope ref git_strarray out_, scope git_repository* repo);
 
 enum git_remote_completion_t
 {
@@ -2766,6 +3180,10 @@ enum git_remote_completion_t
     GIT_REMOTE_COMPLETION_INDEXING = 1,
     GIT_REMOTE_COMPLETION_ERROR = 2
 }
+
+alias GIT_REMOTE_COMPLETION_DOWNLOAD = git_remote_completion_t.GIT_REMOTE_COMPLETION_DOWNLOAD;
+alias GIT_REMOTE_COMPLETION_INDEXING = git_remote_completion_t.GIT_REMOTE_COMPLETION_INDEXING;
+alias GIT_REMOTE_COMPLETION_ERROR = git_remote_completion_t.GIT_REMOTE_COMPLETION_ERROR;
 
 alias git_push_transfer_progress_cb = int function (
     uint current,
@@ -2836,6 +3254,10 @@ enum git_fetch_prune_t
     GIT_FETCH_NO_PRUNE = 2
 }
 
+alias GIT_FETCH_PRUNE_UNSPECIFIED = git_fetch_prune_t.GIT_FETCH_PRUNE_UNSPECIFIED;
+alias GIT_FETCH_PRUNE = git_fetch_prune_t.GIT_FETCH_PRUNE;
+alias GIT_FETCH_NO_PRUNE = git_fetch_prune_t.GIT_FETCH_NO_PRUNE;
+
 enum git_remote_autotag_option_t
 {
     GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED = 0,
@@ -2846,6 +3268,21 @@ enum git_remote_autotag_option_t
 
     GIT_REMOTE_DOWNLOAD_TAGS_ALL = 3
 }
+
+alias GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED = git_remote_autotag_option_t.GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED;
+alias GIT_REMOTE_DOWNLOAD_TAGS_AUTO = git_remote_autotag_option_t.GIT_REMOTE_DOWNLOAD_TAGS_AUTO;
+alias GIT_REMOTE_DOWNLOAD_TAGS_NONE = git_remote_autotag_option_t.GIT_REMOTE_DOWNLOAD_TAGS_NONE;
+alias GIT_REMOTE_DOWNLOAD_TAGS_ALL = git_remote_autotag_option_t.GIT_REMOTE_DOWNLOAD_TAGS_ALL;
+
+enum git_fetch_depth_t
+{
+    GIT_FETCH_DEPTH_FULL = 0,
+
+    GIT_FETCH_DEPTH_UNSHALLOW = 2147483647
+}
+
+alias GIT_FETCH_DEPTH_FULL = git_fetch_depth_t.GIT_FETCH_DEPTH_FULL;
+alias GIT_FETCH_DEPTH_UNSHALLOW = git_fetch_depth_t.GIT_FETCH_DEPTH_UNSHALLOW;
 
 struct git_fetch_options
 {
@@ -2861,16 +3298,14 @@ struct git_fetch_options
 
     git_proxy_options proxy_opts;
 
+    int depth;
+
     git_remote_redirect_t follow_redirects;
 
     git_strarray custom_headers;
-
-    int depth;
-
-    int unshallow;
 }
 
-int git_fetch_options_init (git_fetch_options* opts, uint version_);
+int git_fetch_options_init (scope ref git_fetch_options opts, uint version_);
 
 struct git_push_options
 {
@@ -2887,7 +3322,7 @@ struct git_push_options
     git_strarray custom_headers;
 }
 
-int git_push_options_init (git_push_options* opts, uint version_);
+int git_push_options_init (scope ref git_push_options opts, uint version_);
 
 struct git_remote_connect_options
 {
@@ -2903,30 +3338,30 @@ struct git_remote_connect_options
 }
 
 int git_remote_connect_options_init (
-    git_remote_connect_options* opts,
+    scope ref git_remote_connect_options opts,
     uint version_);
 
 int git_remote_connect (
     scope git_remote* remote,
     git_direction direction,
     const(git_remote_callbacks)* callbacks,
-    const(git_proxy_options)* proxy_opts,
-    scope ref git_strarray custom_headers);
+    scope const ref git_proxy_options proxy_opts,
+    const(git_strarray)* custom_headers);
 
 int git_remote_connect_ext (
     scope git_remote* remote,
     git_direction direction,
-    const(git_remote_connect_options)* opts);
+    scope const ref git_remote_connect_options opts);
 
 int git_remote_download (
     scope git_remote* remote,
-    scope ref git_strarray refspecs,
-    const(git_fetch_options)* opts);
+    const(git_strarray)* refspecs,
+    scope const ref git_fetch_options opts);
 
 int git_remote_upload (
     scope git_remote* remote,
-    scope ref git_strarray refspecs,
-    const(git_push_options)* opts);
+    const(git_strarray)* refspecs,
+    scope const ref git_push_options opts);
 
 int git_remote_update_tips (
     scope git_remote* remote,
@@ -2937,9 +3372,9 @@ int git_remote_update_tips (
 
 int git_remote_fetch (
     scope git_remote* remote,
-    scope git_strarray* refspecs = null,
-    scope git_fetch_options* opts = null,
-    const(char)* reflog_message = null);
+    const(git_strarray)* refspecs,
+    scope const ref git_fetch_options opts,
+    const(char)* reflog_message);
 
 int git_remote_prune (
     scope git_remote* remote,
@@ -2947,16 +3382,16 @@ int git_remote_prune (
 
 int git_remote_push (
     scope git_remote* remote,
-    scope ref git_strarray refspecs,
-    const(git_push_options)* opts);
+    const(git_strarray)* refspecs,
+    scope const ref git_push_options opts);
 
 const(git_indexer_progress)* git_remote_stats (scope git_remote* remote);
 
-git_remote_autotag_option_t git_remote_autotag (scope git_remote* remote);
+git_remote_autotag_option_t git_remote_autotag (scope const(git_remote)* remote);
 
 int git_remote_set_autotag (scope git_repository* repo, const(char)* remote, git_remote_autotag_option_t value);
 
-int git_remote_prune_refs (scope git_remote* remote);
+int git_remote_prune_refs (scope const(git_remote)* remote);
 
 int git_remote_rename (
     scope ref git_strarray problems,
@@ -2964,7 +3399,7 @@ int git_remote_rename (
     const(char)* name,
     const(char)* new_name);
 
-int git_remote_name_is_valid (int* valid, const(char)* remote_name);
+int git_remote_name_is_valid (out int valid, const(char)* remote_name);
 
 int git_remote_delete (scope git_repository* repo, const(char)* name);
 
@@ -2981,15 +3416,20 @@ enum git_clone_local_t
     GIT_CLONE_LOCAL_NO_LINKS = 3
 }
 
+alias GIT_CLONE_LOCAL_AUTO = git_clone_local_t.GIT_CLONE_LOCAL_AUTO;
+alias GIT_CLONE_LOCAL = git_clone_local_t.GIT_CLONE_LOCAL;
+alias GIT_CLONE_NO_LOCAL = git_clone_local_t.GIT_CLONE_NO_LOCAL;
+alias GIT_CLONE_LOCAL_NO_LINKS = git_clone_local_t.GIT_CLONE_LOCAL_NO_LINKS;
+
 alias git_remote_create_cb = int function (
-    git_remote** out_,
+    scope out git_remote* out_,
     scope git_repository* repo,
     const(char)* name,
     const(char)* url,
     void* payload);
 
 alias git_repository_create_cb = int function (
-    git_repository** out_,
+    scope out git_repository* out_,
     const(char)* path,
     int bare,
     void* payload);
@@ -3017,13 +3457,13 @@ struct git_clone_options
     void* remote_cb_payload;
 }
 
-int git_clone_options_init (scope git_clone_options* opts, uint version_);
+int git_clone_options_init (scope ref git_clone_options opts, uint version_);
 
 int git_clone (
     scope out git_repository* out_,
     const(char)* url,
     const(char)* local_path,
-    scope const(git_clone_options)* options = null);
+    scope const ref git_clone_options options);
 
 int git_commit_lookup (
     git_commit** commit,
@@ -3036,58 +3476,58 @@ int git_commit_lookup_prefix (
     const(git_oid)* id,
     size_t len);
 
-void git_commit_free (scope git_commit* commit);
+void git_commit_free (git_commit* commit);
 
-const(git_oid)* git_commit_id (scope git_commit* commit);
+const(git_oid)* git_commit_id (const(git_commit)* commit);
 
-git_repository* git_commit_owner (scope git_commit* commit);
+git_repository* git_commit_owner (const(git_commit)* commit);
 
-const(char)* git_commit_message_encoding (scope git_commit* commit);
+const(char)* git_commit_message_encoding (const(git_commit)* commit);
 
-const(char)* git_commit_message (scope git_commit* commit);
+const(char)* git_commit_message (const(git_commit)* commit);
 
-const(char)* git_commit_message_raw (scope git_commit* commit);
+const(char)* git_commit_message_raw (const(git_commit)* commit);
 
-const(char)* git_commit_summary (scope git_commit* commit);
+const(char)* git_commit_summary (git_commit* commit);
 
-const(char)* git_commit_body (scope git_commit* commit);
+const(char)* git_commit_body (git_commit* commit);
 
-git_time_t git_commit_time (scope git_commit* commit);
+git_time_t git_commit_time (const(git_commit)* commit);
 
-int git_commit_time_offset (scope git_commit* commit);
+int git_commit_time_offset (const(git_commit)* commit);
 
-const(git_signature)* git_commit_committer (scope git_commit* commit);
+const(git_signature)* git_commit_committer (const(git_commit)* commit);
 
-const(git_signature)* git_commit_author (scope git_commit* commit);
+const(git_signature)* git_commit_author (const(git_commit)* commit);
 
 int git_commit_committer_with_mailmap (
     git_signature** out_,
-    scope git_commit* commit,
+    const(git_commit)* commit,
     const(git_mailmap)* mailmap);
 
 int git_commit_author_with_mailmap (
     git_signature** out_,
-    scope git_commit* commit,
+    const(git_commit)* commit,
     const(git_mailmap)* mailmap);
 
-const(char)* git_commit_raw_header (scope git_commit* commit);
+const(char)* git_commit_raw_header (const(git_commit)* commit);
 
-int git_commit_tree (git_tree** tree_out, scope git_commit* commit);
+int git_commit_tree (git_tree** tree_out, const(git_commit)* commit);
 
-const(git_oid)* git_commit_tree_id (scope git_commit* commit);
+const(git_oid)* git_commit_tree_id (const(git_commit)* commit);
 
-uint git_commit_parentcount (scope git_commit* commit);
+uint git_commit_parentcount (const(git_commit)* commit);
 
-int git_commit_parent (git_commit** out_, scope git_commit* commit, uint n);
+int git_commit_parent (git_commit** out_, const(git_commit)* commit, uint n);
 
-const(git_oid)* git_commit_parent_id (scope git_commit* commit, uint n);
+const(git_oid)* git_commit_parent_id (const(git_commit)* commit, uint n);
 
 int git_commit_nth_gen_ancestor (
     git_commit** ancestor,
-    scope git_commit* commit,
+    const(git_commit)* commit,
     uint n);
 
-int git_commit_header_field (git_buf* out_, scope git_commit* commit, const(char)* field);
+int git_commit_header_field (git_buf* out_, const(git_commit)* commit, const(char)* field);
 
 int git_commit_extract_signature (git_buf* signature, git_buf* signed_data, scope git_repository* repo, git_oid* commit_id, const(char)* field);
 
@@ -3101,7 +3541,7 @@ int git_commit_create (
     const(char)* message,
     const(git_tree)* tree,
     size_t parent_count,
-    scope git_commit** parents);
+    const(git_commit)** parents);
 
 int git_commit_create_v (
     git_oid* id,
@@ -3117,7 +3557,7 @@ int git_commit_create_v (
 
 int git_commit_amend (
     git_oid* id,
-    scope git_commit* commit_to_amend,
+    const(git_commit)* commit_to_amend,
     const(char)* update_ref,
     const(git_signature)* author,
     const(git_signature)* committer,
@@ -3134,7 +3574,7 @@ int git_commit_create_buffer (
     const(char)* message,
     const(git_tree)* tree,
     size_t parent_count,
-    scope git_commit** parents);
+    const(git_commit)** parents);
 
 int git_commit_create_with_signature (
     git_oid* out_,
@@ -3143,7 +3583,7 @@ int git_commit_create_with_signature (
     const(char)* signature,
     const(char)* signature_field);
 
-int git_commit_dup (git_commit** out_, scope git_commit* source);
+int git_commit_dup (git_commit** out_, git_commit* source);
 
 alias git_commit_create_cb = int function (
     git_oid* out_,
@@ -3153,7 +3593,7 @@ alias git_commit_create_cb = int function (
     const(char)* message,
     const(git_tree)* tree,
     size_t parent_count,
-    scope git_commit*[] parents,
+    const(git_commit)*[] parents,
     void* payload);
 
 enum git_config_level_t
@@ -3172,6 +3612,14 @@ enum git_config_level_t
 
     GIT_CONFIG_HIGHEST_LEVEL = -1
 }
+
+alias GIT_CONFIG_LEVEL_PROGRAMDATA = git_config_level_t.GIT_CONFIG_LEVEL_PROGRAMDATA;
+alias GIT_CONFIG_LEVEL_SYSTEM = git_config_level_t.GIT_CONFIG_LEVEL_SYSTEM;
+alias GIT_CONFIG_LEVEL_XDG = git_config_level_t.GIT_CONFIG_LEVEL_XDG;
+alias GIT_CONFIG_LEVEL_GLOBAL = git_config_level_t.GIT_CONFIG_LEVEL_GLOBAL;
+alias GIT_CONFIG_LEVEL_LOCAL = git_config_level_t.GIT_CONFIG_LEVEL_LOCAL;
+alias GIT_CONFIG_LEVEL_APP = git_config_level_t.GIT_CONFIG_LEVEL_APP;
+alias GIT_CONFIG_HIGHEST_LEVEL = git_config_level_t.GIT_CONFIG_HIGHEST_LEVEL;
 
 struct git_config_entry
 {
@@ -3197,6 +3645,11 @@ enum git_configmap_t
     GIT_CONFIGMAP_STRING = 3
 }
 
+alias GIT_CONFIGMAP_FALSE = git_configmap_t.GIT_CONFIGMAP_FALSE;
+alias GIT_CONFIGMAP_TRUE = git_configmap_t.GIT_CONFIGMAP_TRUE;
+alias GIT_CONFIGMAP_INT32 = git_configmap_t.GIT_CONFIGMAP_INT32;
+alias GIT_CONFIGMAP_STRING = git_configmap_t.GIT_CONFIGMAP_STRING;
+
 struct git_configmap
 {
     git_configmap_t type;
@@ -3220,7 +3673,7 @@ int git_config_add_file_ondisk (
     git_config* cfg,
     const(char)* path,
     git_config_level_t level,
-    ref git_repository* repo,
+    scope const(git_repository)* repo,
     int force);
 
 int git_config_open_ondisk (git_config** out_, const(char)* path);
@@ -3241,11 +3694,11 @@ int git_config_get_entry (
     const(git_config)* cfg,
     const(char)* name);
 
-int git_config_get_int32 (int* out_, const(git_config)* cfg, const(char)* name);
+int git_config_get_int32 (out int out_, const(git_config)* cfg, const(char)* name);
 
 int git_config_get_int64 (long* out_, const(git_config)* cfg, const(char)* name);
 
-int git_config_get_bool (int* out_, const(git_config)* cfg, const(char)* name);
+int git_config_get_bool (out int out_, const(git_config)* cfg, const(char)* name);
 
 int git_config_get_path (git_buf* out_, const(git_config)* cfg, const(char)* name);
 
@@ -3291,21 +3744,21 @@ int git_config_foreach_match (
     void* payload);
 
 int git_config_get_mapped (
-    int* out_,
+    out int out_,
     const(git_config)* cfg,
     const(char)* name,
     const(git_configmap)* maps,
     size_t map_n);
 
 int git_config_lookup_map_value (
-    int* out_,
+    out int out_,
     const(git_configmap)* maps,
     size_t map_n,
     const(char)* value);
 
-int git_config_parse_bool (int* out_, const(char)* value);
+int git_config_parse_bool (out int out_, const(char)* value);
 
-int git_config_parse_int32 (int* out_, const(char)* value);
+int git_config_parse_int32 (out int out_, const(char)* value);
 
 int git_config_parse_int64 (long* out_, const(char)* value);
 
@@ -3326,6 +3779,10 @@ enum git_describe_strategy_t
     GIT_DESCRIBE_ALL = 2
 }
 
+alias GIT_DESCRIBE_DEFAULT = git_describe_strategy_t.GIT_DESCRIBE_DEFAULT;
+alias GIT_DESCRIBE_TAGS = git_describe_strategy_t.GIT_DESCRIBE_TAGS;
+alias GIT_DESCRIBE_ALL = git_describe_strategy_t.GIT_DESCRIBE_ALL;
+
 struct git_describe_options
 {
     uint version_;
@@ -3339,7 +3796,7 @@ struct git_describe_options
     int show_commit_oid_as_fallback;
 }
 
-int git_describe_options_init (git_describe_options* opts, uint version_);
+int git_describe_options_init (scope ref git_describe_options opts, uint version_);
 
 struct git_describe_format_options
 {
@@ -3352,24 +3809,24 @@ struct git_describe_format_options
     const(char)* dirty_suffix;
 }
 
-int git_describe_format_options_init (git_describe_format_options* opts, uint version_);
+int git_describe_format_options_init (scope ref git_describe_format_options opts, uint version_);
 
 struct git_describe_result;
 
 int git_describe_commit (
     git_describe_result** result,
-    git_object* committish,
-    git_describe_options* opts);
+    scope git_object* committish,
+    scope ref git_describe_options opts);
 
 int git_describe_workdir (
     git_describe_result** out_,
     scope git_repository* repo,
-    git_describe_options* opts);
+    scope ref git_describe_options opts);
 
 int git_describe_format (
     git_buf* out_,
     const(git_describe_result)* result,
-    const(git_describe_format_options)* opts);
+    scope const ref git_describe_format_options opts);
 
 void git_describe_result_free (git_describe_result* result);
 
@@ -3409,8 +3866,42 @@ enum git_error_code
     GIT_EMISMATCH = -33,
     GIT_EINDEXDIRTY = -34,
     GIT_EAPPLYFAIL = -35,
-    GIT_EOWNER = -36
+    GIT_EOWNER = -36,
+    GIT_TIMEOUT = -37
 }
+
+alias GIT_OK = git_error_code.GIT_OK;
+alias GIT_ERROR = git_error_code.GIT_ERROR;
+alias GIT_ENOTFOUND = git_error_code.GIT_ENOTFOUND;
+alias GIT_EEXISTS = git_error_code.GIT_EEXISTS;
+alias GIT_EAMBIGUOUS = git_error_code.GIT_EAMBIGUOUS;
+alias GIT_EBUFS = git_error_code.GIT_EBUFS;
+alias GIT_EUSER = git_error_code.GIT_EUSER;
+alias GIT_EBAREREPO = git_error_code.GIT_EBAREREPO;
+alias GIT_EUNBORNBRANCH = git_error_code.GIT_EUNBORNBRANCH;
+alias GIT_EUNMERGED = git_error_code.GIT_EUNMERGED;
+alias GIT_ENONFASTFORWARD = git_error_code.GIT_ENONFASTFORWARD;
+alias GIT_EINVALIDSPEC = git_error_code.GIT_EINVALIDSPEC;
+alias GIT_ECONFLICT = git_error_code.GIT_ECONFLICT;
+alias GIT_ELOCKED = git_error_code.GIT_ELOCKED;
+alias GIT_EMODIFIED = git_error_code.GIT_EMODIFIED;
+alias GIT_EAUTH = git_error_code.GIT_EAUTH;
+alias GIT_ECERTIFICATE = git_error_code.GIT_ECERTIFICATE;
+alias GIT_EAPPLIED = git_error_code.GIT_EAPPLIED;
+alias GIT_EPEEL = git_error_code.GIT_EPEEL;
+alias GIT_EEOF = git_error_code.GIT_EEOF;
+alias GIT_EINVALID = git_error_code.GIT_EINVALID;
+alias GIT_EUNCOMMITTED = git_error_code.GIT_EUNCOMMITTED;
+alias GIT_EDIRECTORY = git_error_code.GIT_EDIRECTORY;
+alias GIT_EMERGECONFLICT = git_error_code.GIT_EMERGECONFLICT;
+alias GIT_PASSTHROUGH = git_error_code.GIT_PASSTHROUGH;
+alias GIT_ITEROVER = git_error_code.GIT_ITEROVER;
+alias GIT_RETRY = git_error_code.GIT_RETRY;
+alias GIT_EMISMATCH = git_error_code.GIT_EMISMATCH;
+alias GIT_EINDEXDIRTY = git_error_code.GIT_EINDEXDIRTY;
+alias GIT_EAPPLYFAIL = git_error_code.GIT_EAPPLYFAIL;
+alias GIT_EOWNER = git_error_code.GIT_EOWNER;
+alias GIT_TIMEOUT = git_error_code.GIT_TIMEOUT;
 
 struct git_error
 {
@@ -3459,6 +3950,44 @@ enum git_error_t
     GIT_ERROR_GRAFTS = 36
 }
 
+alias GIT_ERROR_NONE = git_error_t.GIT_ERROR_NONE;
+alias GIT_ERROR_NOMEMORY = git_error_t.GIT_ERROR_NOMEMORY;
+alias GIT_ERROR_OS = git_error_t.GIT_ERROR_OS;
+alias GIT_ERROR_INVALID = git_error_t.GIT_ERROR_INVALID;
+alias GIT_ERROR_REFERENCE = git_error_t.GIT_ERROR_REFERENCE;
+alias GIT_ERROR_ZLIB = git_error_t.GIT_ERROR_ZLIB;
+alias GIT_ERROR_REPOSITORY = git_error_t.GIT_ERROR_REPOSITORY;
+alias GIT_ERROR_CONFIG = git_error_t.GIT_ERROR_CONFIG;
+alias GIT_ERROR_REGEX = git_error_t.GIT_ERROR_REGEX;
+alias GIT_ERROR_ODB = git_error_t.GIT_ERROR_ODB;
+alias GIT_ERROR_INDEX = git_error_t.GIT_ERROR_INDEX;
+alias GIT_ERROR_OBJECT = git_error_t.GIT_ERROR_OBJECT;
+alias GIT_ERROR_NET = git_error_t.GIT_ERROR_NET;
+alias GIT_ERROR_TAG = git_error_t.GIT_ERROR_TAG;
+alias GIT_ERROR_TREE = git_error_t.GIT_ERROR_TREE;
+alias GIT_ERROR_INDEXER = git_error_t.GIT_ERROR_INDEXER;
+alias GIT_ERROR_SSL = git_error_t.GIT_ERROR_SSL;
+alias GIT_ERROR_SUBMODULE = git_error_t.GIT_ERROR_SUBMODULE;
+alias GIT_ERROR_THREAD = git_error_t.GIT_ERROR_THREAD;
+alias GIT_ERROR_STASH = git_error_t.GIT_ERROR_STASH;
+alias GIT_ERROR_CHECKOUT = git_error_t.GIT_ERROR_CHECKOUT;
+alias GIT_ERROR_FETCHHEAD = git_error_t.GIT_ERROR_FETCHHEAD;
+alias GIT_ERROR_MERGE = git_error_t.GIT_ERROR_MERGE;
+alias GIT_ERROR_SSH = git_error_t.GIT_ERROR_SSH;
+alias GIT_ERROR_FILTER = git_error_t.GIT_ERROR_FILTER;
+alias GIT_ERROR_REVERT = git_error_t.GIT_ERROR_REVERT;
+alias GIT_ERROR_CALLBACK = git_error_t.GIT_ERROR_CALLBACK;
+alias GIT_ERROR_CHERRYPICK = git_error_t.GIT_ERROR_CHERRYPICK;
+alias GIT_ERROR_DESCRIBE = git_error_t.GIT_ERROR_DESCRIBE;
+alias GIT_ERROR_REBASE = git_error_t.GIT_ERROR_REBASE;
+alias GIT_ERROR_FILESYSTEM = git_error_t.GIT_ERROR_FILESYSTEM;
+alias GIT_ERROR_PATCH = git_error_t.GIT_ERROR_PATCH;
+alias GIT_ERROR_WORKTREE = git_error_t.GIT_ERROR_WORKTREE;
+alias GIT_ERROR_SHA = git_error_t.GIT_ERROR_SHA;
+alias GIT_ERROR_HTTP = git_error_t.GIT_ERROR_HTTP;
+alias GIT_ERROR_INTERNAL = git_error_t.GIT_ERROR_INTERNAL;
+alias GIT_ERROR_GRAFTS = git_error_t.GIT_ERROR_GRAFTS;
+
 const(git_error)* git_error_last ();
 
 void git_error_clear ();
@@ -3477,6 +4006,11 @@ enum git_filter_mode_t
     GIT_FILTER_CLEAN = GIT_FILTER_TO_ODB
 }
 
+alias GIT_FILTER_TO_WORKTREE = git_filter_mode_t.GIT_FILTER_TO_WORKTREE;
+alias GIT_FILTER_SMUDGE = git_filter_mode_t.GIT_FILTER_SMUDGE;
+alias GIT_FILTER_TO_ODB = git_filter_mode_t.GIT_FILTER_TO_ODB;
+alias GIT_FILTER_CLEAN = git_filter_mode_t.GIT_FILTER_CLEAN;
+
 enum git_filter_flag_t
 {
     GIT_FILTER_DEFAULT = 0u,
@@ -3489,6 +4023,12 @@ enum git_filter_flag_t
 
     GIT_FILTER_ATTRIBUTES_FROM_COMMIT = 1u << 3
 }
+
+alias GIT_FILTER_DEFAULT = git_filter_flag_t.GIT_FILTER_DEFAULT;
+alias GIT_FILTER_ALLOW_UNSAFE = git_filter_flag_t.GIT_FILTER_ALLOW_UNSAFE;
+alias GIT_FILTER_NO_SYSTEM_ATTRIBUTES = git_filter_flag_t.GIT_FILTER_NO_SYSTEM_ATTRIBUTES;
+alias GIT_FILTER_ATTRIBUTES_FROM_HEAD = git_filter_flag_t.GIT_FILTER_ATTRIBUTES_FROM_HEAD;
+alias GIT_FILTER_ATTRIBUTES_FROM_COMMIT = git_filter_flag_t.GIT_FILTER_ATTRIBUTES_FROM_COMMIT;
 
 struct git_filter_options
 {
@@ -3519,7 +4059,7 @@ int git_filter_list_load_ext (
     git_blob* blob,
     const(char)* path,
     git_filter_mode_t mode,
-    git_filter_options* opts);
+    scope ref git_filter_options opts);
 
 int git_filter_list_contains (git_filter_list* filters, const(char)* name);
 
@@ -3595,6 +4135,13 @@ enum git_rebase_operation_t
     GIT_REBASE_OPERATION_EXEC = 5
 }
 
+alias GIT_REBASE_OPERATION_PICK = git_rebase_operation_t.GIT_REBASE_OPERATION_PICK;
+alias GIT_REBASE_OPERATION_REWORD = git_rebase_operation_t.GIT_REBASE_OPERATION_REWORD;
+alias GIT_REBASE_OPERATION_EDIT = git_rebase_operation_t.GIT_REBASE_OPERATION_EDIT;
+alias GIT_REBASE_OPERATION_SQUASH = git_rebase_operation_t.GIT_REBASE_OPERATION_SQUASH;
+alias GIT_REBASE_OPERATION_FIXUP = git_rebase_operation_t.GIT_REBASE_OPERATION_FIXUP;
+alias GIT_REBASE_OPERATION_EXEC = git_rebase_operation_t.GIT_REBASE_OPERATION_EXEC;
+
 struct git_rebase_operation
 {
     git_rebase_operation_t type;
@@ -3604,7 +4151,7 @@ struct git_rebase_operation
     const(char)* exec;
 }
 
-int git_rebase_options_init (git_rebase_options* opts, uint version_);
+int git_rebase_options_init (scope ref git_rebase_options opts, uint version_);
 
 int git_rebase_init (
     git_rebase** out_,
@@ -3612,12 +4159,12 @@ int git_rebase_init (
     const(git_annotated_commit)* branch,
     const(git_annotated_commit)* upstream,
     const(git_annotated_commit)* onto,
-    const(git_rebase_options)* opts);
+    scope const ref git_rebase_options opts);
 
 int git_rebase_open (
     git_rebase** out_,
     scope git_repository* repo,
-    const(git_rebase_options)* opts);
+    scope const ref git_rebase_options opts);
 
 const(char)* git_rebase_orig_head_name (git_rebase* rebase);
 
@@ -3670,6 +4217,14 @@ enum git_trace_level_t
     GIT_TRACE_TRACE = 6
 }
 
+alias GIT_TRACE_NONE = git_trace_level_t.GIT_TRACE_NONE;
+alias GIT_TRACE_FATAL = git_trace_level_t.GIT_TRACE_FATAL;
+alias GIT_TRACE_ERROR = git_trace_level_t.GIT_TRACE_ERROR;
+alias GIT_TRACE_WARN = git_trace_level_t.GIT_TRACE_WARN;
+alias GIT_TRACE_INFO = git_trace_level_t.GIT_TRACE_INFO;
+alias GIT_TRACE_DEBUG = git_trace_level_t.GIT_TRACE_DEBUG;
+alias GIT_TRACE_TRACE = git_trace_level_t.GIT_TRACE_TRACE;
+
 alias git_trace_cb = void function (git_trace_level_t level, const(char)* msg);
 
 int git_trace_set (git_trace_level_t level, git_trace_cb cb);
@@ -3684,28 +4239,28 @@ struct git_revert_options
     git_checkout_options checkout_opts;
 }
 
-int git_revert_options_init (git_revert_options* opts, uint version_);
+int git_revert_options_init (scope ref git_revert_options opts, uint version_);
 
 int git_revert_commit (
     git_index** out_,
     scope git_repository* repo,
-    scope git_commit* revert_commit,
-    scope git_commit* our_commit,
+    git_commit* revert_commit,
+    git_commit* our_commit,
     uint mainline,
-    const(git_merge_options)* merge_options);
+    scope const ref git_merge_options merge_options);
 
 int git_revert (
     scope git_repository* repo,
-    scope git_commit* commit,
-    const(git_revert_options)* given_opts);
+    git_commit* commit,
+    scope const ref git_revert_options given_opts);
 
 int git_revparse_single (
     scope out git_object* out_,
-    scope ref git_repository* repo,
+    scope git_repository* repo,
     const(char)* spec);
 
 int git_revparse_ext (
-    git_object** object_out,
+    scope out git_object* object_out,
     git_reference** reference_out,
     scope git_repository* repo,
     const(char)* spec);
@@ -3718,6 +4273,10 @@ enum git_revspec_t
 
     GIT_REVSPEC_MERGE_BASE = 1 << 2
 }
+
+alias GIT_REVSPEC_SINGLE = git_revspec_t.GIT_REVSPEC_SINGLE;
+alias GIT_REVSPEC_RANGE = git_revspec_t.GIT_REVSPEC_RANGE;
+alias GIT_REVSPEC_MERGE_BASE = git_revspec_t.GIT_REVSPEC_MERGE_BASE;
 
 struct git_revspec
 {
@@ -3746,6 +4305,12 @@ enum git_stash_flags
     GIT_STASH_KEEP_ALL = 1 << 3
 }
 
+alias GIT_STASH_DEFAULT = git_stash_flags.GIT_STASH_DEFAULT;
+alias GIT_STASH_KEEP_INDEX = git_stash_flags.GIT_STASH_KEEP_INDEX;
+alias GIT_STASH_INCLUDE_UNTRACKED = git_stash_flags.GIT_STASH_INCLUDE_UNTRACKED;
+alias GIT_STASH_INCLUDE_IGNORED = git_stash_flags.GIT_STASH_INCLUDE_IGNORED;
+alias GIT_STASH_KEEP_ALL = git_stash_flags.GIT_STASH_KEEP_ALL;
+
 int git_stash_save (
     git_oid* out_,
     scope git_repository* repo,
@@ -3766,12 +4331,12 @@ struct git_stash_save_options
     git_strarray paths;
 }
 
-int git_stash_save_options_init (git_stash_save_options* opts, uint version_);
+int git_stash_save_options_init (scope ref git_stash_save_options opts, uint version_);
 
 int git_stash_save_with_opts (
     git_oid* out_,
     scope git_repository* repo,
-    const(git_stash_save_options)* opts);
+    scope const ref git_stash_save_options opts);
 
 enum git_stash_apply_flags
 {
@@ -3779,6 +4344,9 @@ enum git_stash_apply_flags
 
     GIT_STASH_APPLY_REINSTATE_INDEX = 1 << 0
 }
+
+alias GIT_STASH_APPLY_DEFAULT = git_stash_apply_flags.GIT_STASH_APPLY_DEFAULT;
+alias GIT_STASH_APPLY_REINSTATE_INDEX = git_stash_apply_flags.GIT_STASH_APPLY_REINSTATE_INDEX;
 
 enum git_stash_apply_progress_t
 {
@@ -3799,6 +4367,15 @@ enum git_stash_apply_progress_t
     GIT_STASH_APPLY_PROGRESS_DONE = 7
 }
 
+alias GIT_STASH_APPLY_PROGRESS_NONE = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_NONE;
+alias GIT_STASH_APPLY_PROGRESS_LOADING_STASH = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_LOADING_STASH;
+alias GIT_STASH_APPLY_PROGRESS_ANALYZE_INDEX = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_ANALYZE_INDEX;
+alias GIT_STASH_APPLY_PROGRESS_ANALYZE_MODIFIED = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_ANALYZE_MODIFIED;
+alias GIT_STASH_APPLY_PROGRESS_ANALYZE_UNTRACKED = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_ANALYZE_UNTRACKED;
+alias GIT_STASH_APPLY_PROGRESS_CHECKOUT_UNTRACKED = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_CHECKOUT_UNTRACKED;
+alias GIT_STASH_APPLY_PROGRESS_CHECKOUT_MODIFIED = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_CHECKOUT_MODIFIED;
+alias GIT_STASH_APPLY_PROGRESS_DONE = git_stash_apply_progress_t.GIT_STASH_APPLY_PROGRESS_DONE;
+
 alias git_stash_apply_progress_cb = int function (
     git_stash_apply_progress_t progress,
     void* payload);
@@ -3815,12 +4392,12 @@ struct git_stash_apply_options
     void* progress_payload;
 }
 
-int git_stash_apply_options_init (git_stash_apply_options* opts, uint version_);
+int git_stash_apply_options_init (scope ref git_stash_apply_options opts, uint version_);
 
 int git_stash_apply (
     scope git_repository* repo,
     size_t index,
-    const(git_stash_apply_options)* options);
+    scope const ref git_stash_apply_options options);
 
 alias git_stash_cb = int function (
     size_t index,
@@ -3838,7 +4415,7 @@ int git_stash_drop (scope git_repository* repo, size_t index);
 int git_stash_pop (
     scope git_repository* repo,
     size_t index,
-    const(git_stash_apply_options)* options);
+    scope const ref git_stash_apply_options options);
 
 enum git_status_t
 {
@@ -3861,6 +4438,21 @@ enum git_status_t
     GIT_STATUS_CONFLICTED = 1u << 15
 }
 
+alias GIT_STATUS_CURRENT = git_status_t.GIT_STATUS_CURRENT;
+alias GIT_STATUS_INDEX_NEW = git_status_t.GIT_STATUS_INDEX_NEW;
+alias GIT_STATUS_INDEX_MODIFIED = git_status_t.GIT_STATUS_INDEX_MODIFIED;
+alias GIT_STATUS_INDEX_DELETED = git_status_t.GIT_STATUS_INDEX_DELETED;
+alias GIT_STATUS_INDEX_RENAMED = git_status_t.GIT_STATUS_INDEX_RENAMED;
+alias GIT_STATUS_INDEX_TYPECHANGE = git_status_t.GIT_STATUS_INDEX_TYPECHANGE;
+alias GIT_STATUS_WT_NEW = git_status_t.GIT_STATUS_WT_NEW;
+alias GIT_STATUS_WT_MODIFIED = git_status_t.GIT_STATUS_WT_MODIFIED;
+alias GIT_STATUS_WT_DELETED = git_status_t.GIT_STATUS_WT_DELETED;
+alias GIT_STATUS_WT_TYPECHANGE = git_status_t.GIT_STATUS_WT_TYPECHANGE;
+alias GIT_STATUS_WT_RENAMED = git_status_t.GIT_STATUS_WT_RENAMED;
+alias GIT_STATUS_WT_UNREADABLE = git_status_t.GIT_STATUS_WT_UNREADABLE;
+alias GIT_STATUS_IGNORED = git_status_t.GIT_STATUS_IGNORED;
+alias GIT_STATUS_CONFLICTED = git_status_t.GIT_STATUS_CONFLICTED;
+
 alias git_status_cb = int function (
     const(char)* path,
     uint status_flags,
@@ -3874,6 +4466,10 @@ enum git_status_show_t
 
     GIT_STATUS_SHOW_WORKDIR_ONLY = 2
 }
+
+alias GIT_STATUS_SHOW_INDEX_AND_WORKDIR = git_status_show_t.GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
+alias GIT_STATUS_SHOW_INDEX_ONLY = git_status_show_t.GIT_STATUS_SHOW_INDEX_ONLY;
+alias GIT_STATUS_SHOW_WORKDIR_ONLY = git_status_show_t.GIT_STATUS_SHOW_WORKDIR_ONLY;
 
 enum git_status_opt_t
 {
@@ -3910,6 +4506,23 @@ enum git_status_opt_t
     GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED = 1u << 15
 }
 
+alias GIT_STATUS_OPT_INCLUDE_UNTRACKED = git_status_opt_t.GIT_STATUS_OPT_INCLUDE_UNTRACKED;
+alias GIT_STATUS_OPT_INCLUDE_IGNORED = git_status_opt_t.GIT_STATUS_OPT_INCLUDE_IGNORED;
+alias GIT_STATUS_OPT_INCLUDE_UNMODIFIED = git_status_opt_t.GIT_STATUS_OPT_INCLUDE_UNMODIFIED;
+alias GIT_STATUS_OPT_EXCLUDE_SUBMODULES = git_status_opt_t.GIT_STATUS_OPT_EXCLUDE_SUBMODULES;
+alias GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS = git_status_opt_t.GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
+alias GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH = git_status_opt_t.GIT_STATUS_OPT_DISABLE_PATHSPEC_MATCH;
+alias GIT_STATUS_OPT_RECURSE_IGNORED_DIRS = git_status_opt_t.GIT_STATUS_OPT_RECURSE_IGNORED_DIRS;
+alias GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX = git_status_opt_t.GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX;
+alias GIT_STATUS_OPT_RENAMES_INDEX_TO_WORKDIR = git_status_opt_t.GIT_STATUS_OPT_RENAMES_INDEX_TO_WORKDIR;
+alias GIT_STATUS_OPT_SORT_CASE_SENSITIVELY = git_status_opt_t.GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
+alias GIT_STATUS_OPT_SORT_CASE_INSENSITIVELY = git_status_opt_t.GIT_STATUS_OPT_SORT_CASE_INSENSITIVELY;
+alias GIT_STATUS_OPT_RENAMES_FROM_REWRITES = git_status_opt_t.GIT_STATUS_OPT_RENAMES_FROM_REWRITES;
+alias GIT_STATUS_OPT_NO_REFRESH = git_status_opt_t.GIT_STATUS_OPT_NO_REFRESH;
+alias GIT_STATUS_OPT_UPDATE_INDEX = git_status_opt_t.GIT_STATUS_OPT_UPDATE_INDEX;
+alias GIT_STATUS_OPT_INCLUDE_UNREADABLE = git_status_opt_t.GIT_STATUS_OPT_INCLUDE_UNREADABLE;
+alias GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED = git_status_opt_t.GIT_STATUS_OPT_INCLUDE_UNREADABLE_AS_UNTRACKED;
+
 struct git_status_options
 {
     uint version_;
@@ -3925,7 +4538,7 @@ struct git_status_options
     ushort rename_threshold;
 }
 
-int git_status_options_init (git_status_options* opts, uint version_);
+int git_status_options_init (scope ref git_status_options opts, uint version_);
 
 struct git_status_entry
 {
@@ -3941,19 +4554,19 @@ int git_status_foreach (
 
 int git_status_foreach_ext (
     scope git_repository* repo,
-    const(git_status_options)* opts,
+    scope const ref git_status_options opts,
     git_status_cb callback,
     void* payload);
 
 int git_status_file (
-    uint* status_flags,
+    out uint status_flags,
     scope git_repository* repo,
     const(char)* path);
 
 int git_status_list_new (
     git_status_list** out_,
     scope git_repository* repo,
-    const(git_status_options)* opts);
+    scope const ref git_status_options opts);
 
 size_t git_status_list_entrycount (git_status_list* statuslist);
 
@@ -3964,7 +4577,7 @@ const(git_status_entry)* git_status_byindex (
 void git_status_list_free (git_status_list* statuslist);
 
 int git_status_should_ignore (
-    int* ignored,
+    out int ignored,
     scope git_repository* repo,
     const(char)* path);
 
@@ -3986,8 +4599,23 @@ enum git_submodule_status_t
     GIT_SUBMODULE_STATUS_WD_UNTRACKED = 1u << 13
 }
 
+alias GIT_SUBMODULE_STATUS_IN_HEAD = git_submodule_status_t.GIT_SUBMODULE_STATUS_IN_HEAD;
+alias GIT_SUBMODULE_STATUS_IN_INDEX = git_submodule_status_t.GIT_SUBMODULE_STATUS_IN_INDEX;
+alias GIT_SUBMODULE_STATUS_IN_CONFIG = git_submodule_status_t.GIT_SUBMODULE_STATUS_IN_CONFIG;
+alias GIT_SUBMODULE_STATUS_IN_WD = git_submodule_status_t.GIT_SUBMODULE_STATUS_IN_WD;
+alias GIT_SUBMODULE_STATUS_INDEX_ADDED = git_submodule_status_t.GIT_SUBMODULE_STATUS_INDEX_ADDED;
+alias GIT_SUBMODULE_STATUS_INDEX_DELETED = git_submodule_status_t.GIT_SUBMODULE_STATUS_INDEX_DELETED;
+alias GIT_SUBMODULE_STATUS_INDEX_MODIFIED = git_submodule_status_t.GIT_SUBMODULE_STATUS_INDEX_MODIFIED;
+alias GIT_SUBMODULE_STATUS_WD_UNINITIALIZED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_UNINITIALIZED;
+alias GIT_SUBMODULE_STATUS_WD_ADDED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_ADDED;
+alias GIT_SUBMODULE_STATUS_WD_DELETED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_DELETED;
+alias GIT_SUBMODULE_STATUS_WD_MODIFIED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_MODIFIED;
+alias GIT_SUBMODULE_STATUS_WD_INDEX_MODIFIED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_INDEX_MODIFIED;
+alias GIT_SUBMODULE_STATUS_WD_WD_MODIFIED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_WD_MODIFIED;
+alias GIT_SUBMODULE_STATUS_WD_UNTRACKED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_UNTRACKED;
+
 alias git_submodule_cb = int function (
-    git_submodule* sm,
+    scope git_submodule* sm,
     const(char)* name,
     void* payload);
 
@@ -4003,19 +4631,19 @@ struct git_submodule_update_options
 }
 
 int git_submodule_update_options_init (
-    git_submodule_update_options* opts,
+    scope ref git_submodule_update_options opts,
     uint version_);
 
-int git_submodule_update (git_submodule* submodule, int init, git_submodule_update_options* options);
+int git_submodule_update (scope git_submodule* submodule, int init, scope ref git_submodule_update_options options);
 
 int git_submodule_lookup (
-    git_submodule** out_,
+    scope out git_submodule* out_,
     scope git_repository* repo,
     const(char)* name);
 
-int git_submodule_dup (git_submodule** out_, git_submodule* source);
+int git_submodule_dup (scope out git_submodule* out_, scope git_submodule* source);
 
-void git_submodule_free (git_submodule* submodule);
+void git_submodule_free (scope git_submodule* submodule);
 
 int git_submodule_foreach (
     scope git_repository* repo,
@@ -4023,51 +4651,51 @@ int git_submodule_foreach (
     void* payload);
 
 int git_submodule_add_setup (
-    git_submodule** out_,
+    scope out git_submodule* out_,
     scope git_repository* repo,
     const(char)* url,
     const(char)* path,
     int use_gitlink);
 
 int git_submodule_clone (
-    git_repository** out_,
-    git_submodule* submodule,
-    const(git_submodule_update_options)* opts);
+    scope out git_repository* out_,
+    scope git_submodule* submodule,
+    scope const ref git_submodule_update_options opts);
 
-int git_submodule_add_finalize (git_submodule* submodule);
+int git_submodule_add_finalize (scope git_submodule* submodule);
 
-int git_submodule_add_to_index (git_submodule* submodule, int write_index);
+int git_submodule_add_to_index (scope git_submodule* submodule, int write_index);
 
-git_repository* git_submodule_owner (git_submodule* submodule);
+git_repository* git_submodule_owner (scope git_submodule* submodule);
 
-const(char)* git_submodule_name (git_submodule* submodule);
+const(char)* git_submodule_name (scope git_submodule* submodule);
 
-const(char)* git_submodule_path (git_submodule* submodule);
+const(char)* git_submodule_path (scope git_submodule* submodule);
 
-const(char)* git_submodule_url (git_submodule* submodule);
+const(char)* git_submodule_url (scope git_submodule* submodule);
 
 int git_submodule_resolve_url (git_buf* out_, scope git_repository* repo, const(char)* url);
 
-const(char)* git_submodule_branch (git_submodule* submodule);
+const(char)* git_submodule_branch (scope git_submodule* submodule);
 
 int git_submodule_set_branch (scope git_repository* repo, const(char)* name, const(char)* branch);
 
 int git_submodule_set_url (scope git_repository* repo, const(char)* name, const(char)* url);
 
-const(git_oid)* git_submodule_index_id (git_submodule* submodule);
+const(git_oid)* git_submodule_index_id (scope git_submodule* submodule);
 
-const(git_oid)* git_submodule_head_id (git_submodule* submodule);
+const(git_oid)* git_submodule_head_id (scope git_submodule* submodule);
 
-const(git_oid)* git_submodule_wd_id (git_submodule* submodule);
+const(git_oid)* git_submodule_wd_id (scope git_submodule* submodule);
 
-git_submodule_ignore_t git_submodule_ignore (git_submodule* submodule);
+git_submodule_ignore_t git_submodule_ignore (scope git_submodule* submodule);
 
 int git_submodule_set_ignore (
     scope git_repository* repo,
     const(char)* name,
     git_submodule_ignore_t ignore);
 
-git_submodule_update_t git_submodule_update_strategy (git_submodule* submodule);
+git_submodule_update_t git_submodule_update_strategy (scope git_submodule* submodule);
 
 int git_submodule_set_update (
     scope git_repository* repo,
@@ -4075,33 +4703,33 @@ int git_submodule_set_update (
     git_submodule_update_t update);
 
 git_submodule_recurse_t git_submodule_fetch_recurse_submodules (
-    git_submodule* submodule);
+    scope git_submodule* submodule);
 
 int git_submodule_set_fetch_recurse_submodules (
     scope git_repository* repo,
     const(char)* name,
     git_submodule_recurse_t fetch_recurse_submodules);
 
-int git_submodule_init (git_submodule* submodule, int overwrite);
+int git_submodule_init (scope git_submodule* submodule, int overwrite);
 
 int git_submodule_repo_init (
-    git_repository** out_,
-    const(git_submodule)* sm,
+    scope out git_repository* out_,
+    scope const(git_submodule)* sm,
     int use_gitlink);
 
-int git_submodule_sync (git_submodule* submodule);
+int git_submodule_sync (scope git_submodule* submodule);
 
-int git_submodule_open (git_repository** repo, git_submodule* submodule);
+int git_submodule_open (scope out git_repository* repo, scope git_submodule* submodule);
 
-int git_submodule_reload (git_submodule* submodule, int force);
+int git_submodule_reload (scope git_submodule* submodule, int force);
 
 int git_submodule_status (
-    uint* status,
+    out uint status,
     scope git_repository* repo,
     const(char)* name,
     git_submodule_ignore_t ignore);
 
-int git_submodule_location (uint* location_status, git_submodule* submodule);
+int git_submodule_location (out uint location_status, scope git_submodule* submodule);
 
 int git_worktree_list (scope ref git_strarray out_, scope git_repository* repo);
 
@@ -4124,7 +4752,7 @@ struct git_worktree_add_options
 }
 
 int git_worktree_add_options_init (
-    git_worktree_add_options* opts,
+    scope ref git_worktree_add_options opts,
     uint version_);
 
 int git_worktree_add (
@@ -4132,7 +4760,7 @@ int git_worktree_add (
     scope git_repository* repo,
     const(char)* name,
     const(char)* path,
-    const(git_worktree_add_options)* opts);
+    scope const ref git_worktree_add_options opts);
 
 int git_worktree_lock (git_worktree* wt, const(char)* reason);
 
@@ -4153,6 +4781,10 @@ enum git_worktree_prune_t
     GIT_WORKTREE_PRUNE_WORKING_TREE = 1u << 2
 }
 
+alias GIT_WORKTREE_PRUNE_VALID = git_worktree_prune_t.GIT_WORKTREE_PRUNE_VALID;
+alias GIT_WORKTREE_PRUNE_LOCKED = git_worktree_prune_t.GIT_WORKTREE_PRUNE_LOCKED;
+alias GIT_WORKTREE_PRUNE_WORKING_TREE = git_worktree_prune_t.GIT_WORKTREE_PRUNE_WORKING_TREE;
+
 struct git_worktree_prune_options
 {
     uint version_;
@@ -4161,14 +4793,14 @@ struct git_worktree_prune_options
 }
 
 int git_worktree_prune_options_init (
-    git_worktree_prune_options* opts,
+    scope ref git_worktree_prune_options opts,
     uint version_);
 
 int git_worktree_is_prunable (
     git_worktree* wt,
-    git_worktree_prune_options* opts);
+    scope ref git_worktree_prune_options opts);
 
-int git_worktree_prune (git_worktree* wt, git_worktree_prune_options* opts);
+int git_worktree_prune (git_worktree* wt, scope ref git_worktree_prune_options opts);
 
 struct git_credential_userpass_payload
 {
@@ -4295,6 +4927,9 @@ enum git_diff_format_email_flags_t
     GIT_DIFF_FORMAT_EMAIL_EXCLUDE_SUBJECT_PATCH_MARKER = 1 << 0
 }
 
+alias GIT_DIFF_FORMAT_EMAIL_NONE = git_diff_format_email_flags_t.GIT_DIFF_FORMAT_EMAIL_NONE;
+alias GIT_DIFF_FORMAT_EMAIL_EXCLUDE_SUBJECT_PATCH_MARKER = git_diff_format_email_flags_t.GIT_DIFF_FORMAT_EMAIL_EXCLUDE_SUBJECT_PATCH_MARKER;
+
 struct git_diff_format_email_options
 {
     uint version_;
@@ -4317,19 +4952,19 @@ struct git_diff_format_email_options
 int git_diff_format_email (
     git_buf* out_,
     git_diff* diff,
-    const(git_diff_format_email_options)* opts);
+    scope const ref git_diff_format_email_options opts);
 
 int git_diff_commit_as_email (
     git_buf* out_,
     scope git_repository* repo,
-    scope git_commit* commit,
+    git_commit* commit,
     size_t patch_no,
     size_t total_patches,
     uint flags,
-    const(git_diff_options)* diff_opts);
+    scope const ref git_diff_options diff_opts);
 
 int git_diff_format_email_options_init (
-    git_diff_format_email_options* opts,
+    scope ref git_diff_format_email_options opts,
     uint version_);
 
 const(git_error)* giterr_last ();
@@ -4432,36 +5067,36 @@ alias git_push_transfer_progress = int function ();
 
 alias git_headlist_cb = int function (git_remote_head* rhead, void* payload);
 
-int git_strarray_copy (scope ref git_strarray tgt, scope ref git_strarray src);
+int git_strarray_copy (scope ref git_strarray tgt, const(git_strarray)* src);
 
 void git_strarray_free (scope ref git_strarray array);
 
-int git_blame_init_options (out git_blame_options opts, uint version_);
-int git_checkout_init_options (out git_checkout_options opts, uint version_);
-int git_cherrypick_init_options (out git_cherrypick_options opts, uint version_);
-int git_clone_init_options (out git_clone_options opts, uint version_);
-int git_describe_init_options (out git_describe_options opts, uint version_);
-int git_describe_init_format_options (out git_describe_format_options opts, uint version_);
-int git_diff_init_options (out git_diff_options opts, uint version_);
-int git_diff_find_init_options (out git_diff_find_options opts, uint version_);
-int git_diff_format_email_init_options (out git_diff_format_email_options opts, uint version_);
-int git_diff_patchid_init_options (out git_diff_patchid_options opts, uint version_);
-int git_fetch_init_options (out git_fetch_options opts, uint version_);
-int git_indexer_init_options (out git_indexer_options opts, uint version_);
-int git_merge_init_options (out git_merge_options opts, uint version_);
-int git_merge_file_init_input (out git_merge_file_input input, uint version_);
-int git_merge_file_init_options (out git_merge_file_options opts, uint version_);
-int git_proxy_init_options (out git_proxy_options opts, uint version_);
-int git_push_init_options (out git_push_options opts, uint version_);
-int git_rebase_init_options (out git_rebase_options opts, uint version_);
-int git_remote_create_init_options (out git_remote_create_options opts, uint version_);
-int git_repository_init_init_options (out git_repository_init_options opts, uint version_);
-int git_revert_init_options (out git_revert_options opts, uint version_);
-int git_stash_apply_init_options (out git_stash_apply_options opts, uint version_);
-int git_status_init_options (out git_status_options opts, uint version_);
-int git_submodule_update_init_options (out git_submodule_update_options opts, uint version_);
-int git_worktree_add_init_options (out git_worktree_add_options opts, uint version_);
-int git_worktree_prune_init_options (out git_worktree_prune_options opts, uint version_);
+int git_blame_init_options (scope git_blame_options* opts, uint version_);
+int git_checkout_init_options (scope git_checkout_options* opts, uint version_);
+int git_cherrypick_init_options (scope git_cherrypick_options* opts, uint version_);
+int git_clone_init_options (scope git_clone_options* opts, uint version_);
+int git_describe_init_options (scope git_describe_options* opts, uint version_);
+int git_describe_init_format_options (scope ref git_describe_format_options opts, uint version_);
+int git_diff_init_options (scope git_diff_options* opts, uint version_);
+int git_diff_find_init_options (scope git_diff_find_options* opts, uint version_);
+int git_diff_format_email_init_options (scope git_diff_format_email_options* opts, uint version_);
+int git_diff_patchid_init_options (scope git_diff_patchid_options* opts, uint version_);
+int git_fetch_init_options (scope git_fetch_options* opts, uint version_);
+int git_indexer_init_options (scope git_indexer_options* opts, uint version_);
+int git_merge_init_options (scope git_merge_options* opts, uint version_);
+int git_merge_file_init_input (git_merge_file_input* input, uint version_);
+int git_merge_file_init_options (scope git_merge_file_options* opts, uint version_);
+int git_proxy_init_options (scope git_proxy_options* opts, uint version_);
+int git_push_init_options (scope git_push_options* opts, uint version_);
+int git_rebase_init_options (scope git_rebase_options* opts, uint version_);
+int git_remote_create_init_options (scope git_remote_create_options* opts, uint version_);
+int git_repository_init_init_options (scope git_repository_init_options* opts, uint version_);
+int git_revert_init_options (scope git_revert_options* opts, uint version_);
+int git_stash_apply_init_options (scope git_stash_apply_options* opts, uint version_);
+int git_status_init_options (scope git_status_options* opts, uint version_);
+int git_submodule_update_init_options (scope git_submodule_update_options* opts, uint version_);
+int git_worktree_add_init_options (scope git_worktree_add_options* opts, uint version_);
+int git_worktree_prune_init_options (scope git_worktree_prune_options* opts, uint version_);
 
 enum git_email_create_flags_t
 {
@@ -4473,6 +5108,11 @@ enum git_email_create_flags_t
 
     GIT_EMAIL_CREATE_NO_RENAMES = 1u << 2
 }
+
+alias GIT_EMAIL_CREATE_DEFAULT = git_email_create_flags_t.GIT_EMAIL_CREATE_DEFAULT;
+alias GIT_EMAIL_CREATE_OMIT_NUMBERS = git_email_create_flags_t.GIT_EMAIL_CREATE_OMIT_NUMBERS;
+alias GIT_EMAIL_CREATE_ALWAYS_NUMBER = git_email_create_flags_t.GIT_EMAIL_CREATE_ALWAYS_NUMBER;
+alias GIT_EMAIL_CREATE_NO_RENAMES = git_email_create_flags_t.GIT_EMAIL_CREATE_NO_RENAMES;
 
 struct git_email_create_options
 {
@@ -4500,12 +5140,12 @@ int git_email_create_from_diff (
     const(char)* summary,
     const(char)* body_,
     const(git_signature)* author,
-    const(git_email_create_options)* opts);
+    scope const ref git_email_create_options opts);
 
 int git_email_create_from_commit (
     git_buf* out_,
-    scope git_commit* commit,
-    const(git_email_create_options)* opts);
+    git_commit* commit,
+    scope const ref git_email_create_options opts);
 
 int git_libgit2_init ();
 
@@ -4529,7 +5169,7 @@ int git_ignore_add_rule (scope git_repository* repo, const(char)* rules);
 int git_ignore_clear_internal_rules (scope git_repository* repo);
 
 int git_ignore_path_is_ignored (
-    int* ignored,
+    out int ignored,
     scope git_repository* repo,
     const(char)* path);
 
@@ -4595,7 +5235,7 @@ int git_note_iterator_new (
 
 int git_note_commit_iterator_new (
     git_note_iterator** out_,
-    scope git_commit* notes_commit);
+    git_commit* notes_commit);
 
 void git_note_iterator_free (git_note_iterator* it);
 
@@ -4613,7 +5253,7 @@ int git_note_read (
 int git_note_commit_read (
     git_note** out_,
     scope git_repository* repo,
-    scope git_commit* notes_commit,
+    git_commit* notes_commit,
     const(git_oid)* oid);
 
 const(git_signature)* git_note_author (const(git_note)* note);
@@ -4638,7 +5278,7 @@ int git_note_commit_create (
     git_oid* notes_commit_out,
     git_oid* notes_blob_out,
     scope git_repository* repo,
-    scope git_commit* parent,
+    git_commit* parent,
     const(git_signature)* author,
     const(git_signature)* committer,
     const(git_oid)* oid,
@@ -4655,7 +5295,7 @@ int git_note_remove (
 int git_note_commit_remove (
     git_oid* notes_commit_out,
     scope git_repository* repo,
-    scope git_commit* notes_commit,
+    git_commit* notes_commit,
     const(git_signature)* author,
     const(git_signature)* committer,
     const(git_oid)* oid);
@@ -4674,6 +5314,8 @@ enum git_odb_lookup_flags_t
 {
     GIT_ODB_LOOKUP_NO_REFRESH = 1 << 0
 }
+
+alias GIT_ODB_LOOKUP_NO_REFRESH = git_odb_lookup_flags_t.GIT_ODB_LOOKUP_NO_REFRESH;
 
 alias git_odb_foreach_cb = int function (const(git_oid)* id, void* payload);
 
@@ -4792,6 +5434,8 @@ enum git_odb_backend_loose_flag_t
     GIT_ODB_BACKEND_LOOSE_FSYNC = 1 << 0
 }
 
+alias GIT_ODB_BACKEND_LOOSE_FSYNC = git_odb_backend_loose_flag_t.GIT_ODB_BACKEND_LOOSE_FSYNC;
+
 struct git_odb_backend_loose_options
 {
     uint version_;
@@ -4821,6 +5465,10 @@ enum git_odb_stream_t
     GIT_STREAM_WRONLY = 1 << 2,
     GIT_STREAM_RW = GIT_STREAM_RDONLY | GIT_STREAM_WRONLY
 }
+
+alias GIT_STREAM_RDONLY = git_odb_stream_t.GIT_STREAM_RDONLY;
+alias GIT_STREAM_WRONLY = git_odb_stream_t.GIT_STREAM_WRONLY;
+alias GIT_STREAM_RW = git_odb_stream_t.GIT_STREAM_RW;
 
 struct git_odb_stream
 {
@@ -4861,7 +5509,7 @@ int git_patch_from_blobs (
     const(char)* old_as_path,
     const(git_blob)* new_blob,
     const(char)* new_as_path,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_patch_from_blob_and_buffer (
     git_patch** out_,
@@ -4870,7 +5518,7 @@ int git_patch_from_blob_and_buffer (
     const(void)* buffer,
     size_t buffer_len,
     const(char)* buffer_as_path,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 int git_patch_from_buffers (
     git_patch** out_,
@@ -4880,7 +5528,7 @@ int git_patch_from_buffers (
     const(void)* new_buffer,
     size_t new_len,
     const(char)* new_as_path,
-    const(git_diff_options)* opts);
+    scope const ref git_diff_options opts);
 
 void git_patch_free (git_patch* patch);
 
@@ -4942,7 +5590,15 @@ enum git_pathspec_flag_t
     GIT_PATHSPEC_FAILURES_ONLY = 1u << 5
 }
 
-int git_pathspec_new (git_pathspec** out_, scope ref git_strarray pathspec);
+alias GIT_PATHSPEC_DEFAULT = git_pathspec_flag_t.GIT_PATHSPEC_DEFAULT;
+alias GIT_PATHSPEC_IGNORE_CASE = git_pathspec_flag_t.GIT_PATHSPEC_IGNORE_CASE;
+alias GIT_PATHSPEC_USE_CASE = git_pathspec_flag_t.GIT_PATHSPEC_USE_CASE;
+alias GIT_PATHSPEC_NO_GLOB = git_pathspec_flag_t.GIT_PATHSPEC_NO_GLOB;
+alias GIT_PATHSPEC_NO_MATCH_ERROR = git_pathspec_flag_t.GIT_PATHSPEC_NO_MATCH_ERROR;
+alias GIT_PATHSPEC_FIND_FAILURES = git_pathspec_flag_t.GIT_PATHSPEC_FIND_FAILURES;
+alias GIT_PATHSPEC_FAILURES_ONLY = git_pathspec_flag_t.GIT_PATHSPEC_FAILURES_ONLY;
+
+int git_pathspec_new (git_pathspec** out_, const(git_strarray)* pathspec);
 
 void git_pathspec_free (git_pathspec* ps);
 
@@ -5038,22 +5694,26 @@ enum git_reset_t
     GIT_RESET_HARD = 3
 }
 
+alias GIT_RESET_SOFT = git_reset_t.GIT_RESET_SOFT;
+alias GIT_RESET_MIXED = git_reset_t.GIT_RESET_MIXED;
+alias GIT_RESET_HARD = git_reset_t.GIT_RESET_HARD;
+
 int git_reset (
     scope git_repository* repo,
-    const(git_object)* target,
+    scope const(git_object)* target,
     git_reset_t reset_type,
-    const(git_checkout_options)* checkout_opts);
+    scope const ref git_checkout_options checkout_opts);
 
 int git_reset_from_annotated (
     scope git_repository* repo,
     const(git_annotated_commit)* commit,
     git_reset_t reset_type,
-    const(git_checkout_options)* checkout_opts);
+    scope const ref git_checkout_options checkout_opts);
 
 int git_reset_default (
     scope git_repository* repo,
-    const(git_object)* target,
-    scope ref git_strarray pathspecs);
+    scope const(git_object)* target,
+    const(git_strarray)* pathspecs);
 
 enum git_sort_t
 {
@@ -5065,6 +5725,11 @@ enum git_sort_t
 
     GIT_SORT_REVERSE = 1 << 2
 }
+
+alias GIT_SORT_NONE = git_sort_t.GIT_SORT_NONE;
+alias GIT_SORT_TOPOLOGICAL = git_sort_t.GIT_SORT_TOPOLOGICAL;
+alias GIT_SORT_TIME = git_sort_t.GIT_SORT_TIME;
+alias GIT_SORT_REVERSE = git_sort_t.GIT_SORT_REVERSE;
 
 int git_revwalk_new (git_revwalk** out_, scope git_repository* repo);
 
@@ -5133,7 +5798,7 @@ const(git_oid)* git_tag_id (const(git_tag)* tag);
 
 git_repository* git_tag_owner (const(git_tag)* tag);
 
-int git_tag_target (git_object** target_out, const(git_tag)* tag);
+int git_tag_target (scope out git_object* target_out, const(git_tag)* tag);
 
 const(git_oid)* git_tag_target_id (const(git_tag)* tag);
 
@@ -5149,7 +5814,7 @@ int git_tag_create (
     git_oid* oid,
     scope git_repository* repo,
     const(char)* tag_name,
-    const(git_object)* target,
+    scope const(git_object)* target,
     const(git_signature)* tagger,
     const(char)* message,
     int force);
@@ -5158,7 +5823,7 @@ int git_tag_annotation_create (
     git_oid* oid,
     scope git_repository* repo,
     const(char)* tag_name,
-    const(git_object)* target,
+    scope const(git_object)* target,
     const(git_signature)* tagger,
     const(char)* message);
 
@@ -5172,7 +5837,7 @@ int git_tag_create_lightweight (
     git_oid* oid,
     scope git_repository* repo,
     const(char)* tag_name,
-    const(git_object)* target,
+    scope const(git_object)* target,
     int force);
 
 int git_tag_delete (scope git_repository* repo, const(char)* tag_name);
@@ -5191,11 +5856,11 @@ int git_tag_foreach (
     git_tag_foreach_cb callback,
     void* payload);
 
-int git_tag_peel (git_object** tag_target_out, const(git_tag)* tag);
+int git_tag_peel (scope out git_object* tag_target_out, const(git_tag)* tag);
 
 int git_tag_dup (git_tag** out_, git_tag* source);
 
-int git_tag_name_is_valid (int* valid, const(char)* name);
+int git_tag_name_is_valid (out int valid, const(char)* name);
 
 int git_transaction_new (git_transaction** out_, scope git_repository* repo);
 
