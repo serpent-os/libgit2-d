@@ -8,10 +8,22 @@ my $file = 'source/git2/bindings.d';
 # How many replacements are made
 my $cnt = 0;
 
-my @special_heads = (
-	qr/alias git_indexer_progress_cb/,
-);
-my @special_lines;
+# my @special_heads = (
+# 	qr/alias git_indexer_progress_cb/,
+# 	qr/alias git_submodule_cb/,
+# );
+# my @special_lines = (
+# 	"module git2.bindings_extra;",
+# 	"",
+# 	"extern(C):",
+# 	"",
+# );
+
+sub skip_line {
+	my ($line) = @_;
+	# return $line ~~ @special_heads || $line =~ /[^)];\Z/;
+	return $line =~ /[^)];\Z/;
+}
 
 # Read the contents of the file
 open my $fh, '<', $file or die "Cannot open file: $!";
@@ -61,7 +73,7 @@ foreach my $target (@replacements) {
 	);
 
 	foreach my $line (@lines) {
-		if ($line !~~ @special_heads && $line !~ /[^)];\Z/) {
+		if (!skip_line($line)) {
 			foreach my $ptrn (@patterns) {
         		my ($pattern, $replace) = @{$ptrn};
         		$cnt += $line =~ s/$pattern/$replace/g;
@@ -76,7 +88,7 @@ foreach my $target (@basic_replacements) {
 	my $pattern = qr/(?<!^)(?<!out )$target\* /;
 	my $replace = "out $target ";
 	foreach my $line (@lines) {
-		if ($line !~~ @special_heads && $line !~ /[^)];\Z/) {
+		if (!skip_line($line)) {
 			$cnt += $line =~ s/$pattern/$replace/g;
 		}
 	}
@@ -88,18 +100,16 @@ my @opts_replacements = (
 	qr/(?<!ref )const\((git_[^ ]+)_options\)\* /,
 );
 foreach my $line (@lines) {
-	if ($line ~~ @opts_replacements) {
-		if ($line !~~ @special_heads && $line !~ /[^)];\Z/) {
-			my $target = "${1}_options";
-			my $skip_function = "${1}_init_options";
+	if ($line ~~ @opts_replacements && !skip_line($line)) {
+		my $target = "${1}_options";
+		my $skip_function = "${1}_init_options";
 
-			if ($line =~ qr/$skip_function/) {
-				$cnt += $line =~ s/(?<!scope )$target\* /scope $target* /g;
-				$cnt += $line =~ s/(?<!scope )const\($target\)\* /scope const($target)* /g;
-			} else {
-				$cnt += $line =~ s/(?<!ref )$target\* /scope ref $target /g;
-				$cnt += $line =~ s/(?<!ref )const\($target\)\* /scope const ref $target /g;
-			}
+		if ($line =~ qr/$skip_function/) {
+			$cnt += $line =~ s/(?<!scope )$target\* /scope $target* /g;
+			$cnt += $line =~ s/(?<!scope )const\($target\)\* /scope const($target)* /g;
+		} else {
+			$cnt += $line =~ s/(?<!ref )$target\* /scope ref $target /g;
+			$cnt += $line =~ s/(?<!ref )const\($target\)\* /scope const ref $target /g;
 		}
 	}
 }
@@ -107,15 +117,17 @@ foreach my $line (@lines) {
 # Fourth replacement, where pointers can be replaced with refs
 my @ref_replacements = (
 	'git_strarray',
+	'git_indexer_progress',
 );
 foreach my $target (@ref_replacements) {
 	my @patterns = (
 		[qr/(?<!^)(?<!scope )$target\* (?>=out_)/, "scope out $target "],
 		[qr/(?<!^)(?<!out )$target\* /, "scope ref $target "],
+		[qr/(?<!^)(?<!out )const\($target\)\* /, "scope const ref $target "],
 	);
 
 	foreach my $line (@lines) {
-		if ($line !~~ @special_heads && $line !~ /[^)];\Z/) {
+		if (!skip_line($line)) {
 			foreach my $ptrn (@patterns) {
         		my ($pattern, $replace) = @{$ptrn};
         		$cnt += $line =~ s/$pattern/$replace/g;
@@ -124,14 +136,14 @@ foreach my $target (@ref_replacements) {
 	}
 }
 
-my $extern_c_index = -1;
-for (my $i = 0; $i < scalar @lines; $i++) {
-	if ($lines[$i] =~ quotemeta("extern (C)")) {
-		$extern_c_index = $i;
-		last;
-	}
-}
-die "Can't find extern(C)!" if $extern_c_index == -1;
+# my $extern_c_index = -1;
+# for (my $i = 0; $i < scalar @lines; $i++) {
+# 	if ($lines[$i] =~ quotemeta("extern (C)")) {
+# 		$extern_c_index = $i;
+# 		last;
+# 	}
+# }
+# die "Can't find extern(C)!" if $extern_c_index == -1;
 
 # Write the modified content back to the file
 open $fh, '>', $file or die "Cannot open file: $!";

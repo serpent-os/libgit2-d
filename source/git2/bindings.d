@@ -6,6 +6,14 @@ import core.stdc.stddef;
 import std.conv;
 
 extern (C):
+
+alias git_indexer_progress_cb = int function (scope const ref git_indexer_progress stats, void* payload);
+
+alias git_submodule_cb = int function (
+    scope git_submodule* sm,
+    const(char)* name,
+    void* payload);
+
 @safe:
 @nogc:
 nothrow:
@@ -2286,8 +2294,6 @@ struct git_indexer_progress
     size_t received_bytes;
 }
 
-alias git_indexer_progress_cb = int function (const(git_indexer_progress)* stats, void* payload);
-
 struct git_indexer_options
 {
     uint version_;
@@ -2308,9 +2314,9 @@ int git_indexer_new (
     git_odb* odb,
     scope ref git_indexer_options opts);
 
-int git_indexer_append (git_indexer* idx, const(void)* data, size_t size, git_indexer_progress* stats);
+int git_indexer_append (git_indexer* idx, const(void)* data, size_t size, scope ref git_indexer_progress stats);
 
-int git_indexer_commit (git_indexer* idx, git_indexer_progress* stats);
+int git_indexer_commit (git_indexer* idx, scope ref git_indexer_progress stats);
 
 const(git_oid)* git_indexer_hash (const(git_indexer)* idx);
 
@@ -2492,20 +2498,20 @@ int git_index_remove_bypath (git_index* index, const(char)* path);
 
 int git_index_add_all (
     git_index* index,
-    const(git_strarray)* pathspec,
+    scope const ref git_strarray pathspec,
     uint flags,
     git_index_matched_path_cb callback,
     void* payload);
 
 int git_index_remove_all (
     git_index* index,
-    const(git_strarray)* pathspec,
+    scope const ref git_strarray pathspec,
     git_index_matched_path_cb callback,
     void* payload);
 
 int git_index_update_all (
     git_index* index,
-    const(git_strarray)* pathspec,
+    scope const ref git_strarray pathspec,
     git_index_matched_path_cb callback,
     void* payload);
 
@@ -3346,7 +3352,7 @@ int git_remote_connect (
     git_direction direction,
     const(git_remote_callbacks)* callbacks,
     scope const ref git_proxy_options proxy_opts,
-    const(git_strarray)* custom_headers);
+    scope const ref git_strarray custom_headers);
 
 int git_remote_connect_ext (
     scope git_remote* remote,
@@ -3355,12 +3361,12 @@ int git_remote_connect_ext (
 
 int git_remote_download (
     scope git_remote* remote,
-    const(git_strarray)* refspecs,
+    scope const ref git_strarray refspecs,
     scope const ref git_fetch_options opts);
 
 int git_remote_upload (
     scope git_remote* remote,
-    const(git_strarray)* refspecs,
+    scope const ref git_strarray refspecs,
     scope const ref git_push_options opts);
 
 int git_remote_update_tips (
@@ -3372,7 +3378,7 @@ int git_remote_update_tips (
 
 int git_remote_fetch (
     scope git_remote* remote,
-    const(git_strarray)* refspecs,
+    scope const ref git_strarray refspecs,
     scope const ref git_fetch_options opts,
     const(char)* reflog_message);
 
@@ -3382,7 +3388,7 @@ int git_remote_prune (
 
 int git_remote_push (
     scope git_remote* remote,
-    const(git_strarray)* refspecs,
+    scope const ref git_strarray refspecs,
     scope const ref git_push_options opts);
 
 const(git_indexer_progress)* git_remote_stats (scope git_remote* remote);
@@ -4614,11 +4620,6 @@ alias GIT_SUBMODULE_STATUS_WD_INDEX_MODIFIED = git_submodule_status_t.GIT_SUBMOD
 alias GIT_SUBMODULE_STATUS_WD_WD_MODIFIED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_WD_MODIFIED;
 alias GIT_SUBMODULE_STATUS_WD_UNTRACKED = git_submodule_status_t.GIT_SUBMODULE_STATUS_WD_UNTRACKED;
 
-alias git_submodule_cb = int function (
-    scope git_submodule* sm,
-    const(char)* name,
-    void* payload);
-
 struct git_submodule_update_options
 {
     uint version_;
@@ -5067,7 +5068,7 @@ alias git_push_transfer_progress = int function ();
 
 alias git_headlist_cb = int function (git_remote_head* rhead, void* payload);
 
-int git_strarray_copy (scope ref git_strarray tgt, const(git_strarray)* src);
+int git_strarray_copy (scope ref git_strarray tgt, scope const ref git_strarray src);
 
 void git_strarray_free (scope ref git_strarray array);
 
@@ -5598,7 +5599,7 @@ alias GIT_PATHSPEC_NO_MATCH_ERROR = git_pathspec_flag_t.GIT_PATHSPEC_NO_MATCH_ER
 alias GIT_PATHSPEC_FIND_FAILURES = git_pathspec_flag_t.GIT_PATHSPEC_FIND_FAILURES;
 alias GIT_PATHSPEC_FAILURES_ONLY = git_pathspec_flag_t.GIT_PATHSPEC_FAILURES_ONLY;
 
-int git_pathspec_new (git_pathspec** out_, const(git_strarray)* pathspec);
+int git_pathspec_new (git_pathspec** out_, scope const ref git_strarray pathspec);
 
 void git_pathspec_free (git_pathspec* ps);
 
@@ -5713,7 +5714,7 @@ int git_reset_from_annotated (
 int git_reset_default (
     scope git_repository* repo,
     scope const(git_object)* target,
-    const(git_strarray)* pathspecs);
+    scope const ref git_strarray pathspecs);
 
 enum git_sort_t
 {
