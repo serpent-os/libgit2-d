@@ -7,4 +7,15 @@
 	],
 	"copyright": "Copyright © 2020-2023 Serpent OS Developers",
 	"license": "ZLib",
+	"libs": [
+		"git2"
+	],
+	"configurations": [
+		{
+			"name": "single-commit-clone",
+			"targetType": "executable",
+			"mainSourceFile": "examples/single-commit-clone.d",
+			"targetName": "single-commit-clone"
+		}
+	]
 }
