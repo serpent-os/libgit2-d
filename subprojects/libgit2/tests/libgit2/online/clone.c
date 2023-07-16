@@ -35,6 +35,8 @@ static char *_remote_proxy_selfsigned = NULL;
 static char *_remote_expectcontinue = NULL;
 static char *_remote_redirect_initial = NULL;
 static char *_remote_redirect_subsequent = NULL;
+static char *_remote_speed_timesout = NULL;
+static char *_remote_speed_slow = NULL;
 
 static char *_github_ssh_pubkey = NULL;
 static char *_github_ssh_privkey = NULL;
@@ -89,6 +91,8 @@ void test_online_clone__initialize(void)
 	_remote_expectcontinue = cl_getenv("GITTEST_REMOTE_EXPECTCONTINUE");
 	_remote_redirect_initial = cl_getenv("GITTEST_REMOTE_REDIRECT_INITIAL");
 	_remote_redirect_subsequent = cl_getenv("GITTEST_REMOTE_REDIRECT_SUBSEQUENT");
+	_remote_speed_timesout = cl_getenv("GITTEST_REMOTE_SPEED_TIMESOUT");
+	_remote_speed_slow = cl_getenv("GITTEST_REMOTE_SPEED_SLOW");
 
 	_github_ssh_pubkey = cl_getenv("GITTEST_GITHUB_SSH_PUBKEY");
 	_github_ssh_privkey = cl_getenv("GITTEST_GITHUB_SSH_KEY");
@@ -128,6 +132,8 @@ void test_online_clone__cleanup(void)
 	git__free(_remote_expectcontinue);
 	git__free(_remote_redirect_initial);
 	git__free(_remote_redirect_subsequent);
+	git__free(_remote_speed_timesout);
+	git__free(_remote_speed_slow);
 
 	git__free(_github_ssh_pubkey);
 	git__free(_github_ssh_privkey);
@@ -145,6 +151,8 @@ void test_online_clone__cleanup(void)
 	}
 
 	git_libgit2_opts(GIT_OPT_SET_SSL_CERT_LOCATIONS, NULL, NULL);
+	git_libgit2_opts(GIT_OPT_SET_SERVER_TIMEOUT, 0);
+	git_libgit2_opts(GIT_OPT_SET_SERVER_CONNECT_TIMEOUT, 0);
 }
 
 void test_online_clone__network_full(void)
@@ -580,6 +588,17 @@ static int succeed_certificate_check(git_cert *cert, int valid, const char *host
 	return 0;
 }
 
+static int x509_succeed_certificate_check(git_cert *cert, int valid, const char *host, void *payload)
+{
+	GIT_UNUSED(valid);
+	GIT_UNUSED(payload);
+
+	cl_assert_equal_s("github.com", host);
+	cl_assert_equal_i(GIT_CERT_X509, cert->cert_type);
+
+	return 0;
+}
+
 static int fail_certificate_check(git_cert *cert, int valid, const char *host, void *payload)
 {
 	GIT_UNUSED(cert);
@@ -901,7 +920,7 @@ void test_online_clone__certificate_invalid(void)
 
 void test_online_clone__certificate_valid(void)
 {
-	g_options.fetch_opts.callbacks.certificate_check = succeed_certificate_check;
+	g_options.fetch_opts.callbacks.certificate_check = x509_succeed_certificate_check;
 
 	cl_git_pass(git_clone(&g_repo, "https://github.com/libgit2/TestGitRepository", "./foo", &g_options));
 }
@@ -1194,5 +1213,73 @@ void test_online_clone__sha256(void)
 	cl_assert_equal_i(GIT_REFERENCE_SYMBOLIC, git_reference_type(head));
 
 	git_reference_free(head);
+#endif
+}
+
+void test_online_clone__connect_timeout_configurable(void)
+{
+#ifdef GIT_WINHTTP
+	cl_skip();
+#else
+	uint64_t start, finish;
+
+	start = git_time_monotonic();
+
+	cl_git_pass(git_libgit2_opts(GIT_OPT_SET_SERVER_CONNECT_TIMEOUT, 1));
+	cl_git_fail(git_clone(&g_repo, "http://www.google.com:8000/", "./timedout", NULL));
+	cl_assert(git_error_last() && strstr(git_error_last()->message, "timed out"));
+
+	finish = git_time_monotonic();
+
+	cl_assert(finish - start < 1000);
+#endif
+}
+
+void test_online_clone__connect_timeout_default(void)
+{
+#ifdef GIT_WINHTTP
+	cl_skip();
+#else
+	/* This test takes ~ 75 seconds on Unix. */
+	if (!cl_is_env_set("GITTEST_INVASIVE_SPEED"))
+		cl_skip();
+
+	/*
+	 * Use a host/port pair that blackholes packets and does not
+	 * send an RST.
+	 */
+	cl_git_fail_with(GIT_TIMEOUT, git_clone(&g_repo, "http://www.google.com:8000/", "./refused", NULL));
+	cl_assert(git_error_last() && strstr(git_error_last()->message, "timed out"));
+#endif
+}
+
+void test_online_clone__timeout_configurable_times_out(void)
+{
+#ifdef GIT_WINHTTP
+	cl_skip();
+#else
+	git_repository *failed_repo;
+
+	if (!_remote_speed_timesout)
+		cl_skip();
+
+	cl_git_pass(git_libgit2_opts(GIT_OPT_SET_SERVER_TIMEOUT, 1000));
+
+	cl_git_fail_with(GIT_TIMEOUT, git_clone(&failed_repo, _remote_speed_timesout, "./timedout", NULL));
+	cl_assert(git_error_last() && strstr(git_error_last()->message, "timed out"));
+#endif
+}
+
+void test_online_clone__timeout_configurable_succeeds_slowly(void)
+{
+#ifdef GIT_WINHTTP
+	cl_skip();
+#else
+	if (!_remote_speed_slow)
+		cl_skip();
+
+	cl_git_pass(git_libgit2_opts(GIT_OPT_SET_SERVER_TIMEOUT, 1000));
+
+	cl_git_pass(git_clone(&g_repo, _remote_speed_slow, "./slow-but-successful", NULL));
 #endif
 }

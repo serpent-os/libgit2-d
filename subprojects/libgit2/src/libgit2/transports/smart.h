@@ -11,11 +11,13 @@
 
 #include "git2.h"
 #include "vector.h"
-#include "netops.h"
 #include "push.h"
 #include "str.h"
 #include "oidarray.h"
+#include "staticstr.h"
 #include "git2/sys/transport.h"
+
+#define GIT_SMART_BUFFER_SIZE  65536
 
 #define GIT_SIDE_BAND_DATA     1
 #define GIT_SIDE_BAND_PROGRESS 2
@@ -163,14 +165,14 @@ typedef struct {
 	git_vector refs;
 	git_vector heads;
 	git_vector common;
+	git_array_oid_t shallow_roots;
 	git_atomic32 cancelled;
 	packetsize_cb packetsize_cb;
 	void *packetsize_payload;
 	unsigned rpc : 1,
 	         have_refs : 1,
 	         connected : 1;
-	gitno_buffer buffer;
-	char buffer_data[65536];
+	git_staticstr_with_size(GIT_SMART_BUFFER_SIZE) buffer;
 } transport_smart;
 
 /* smart_protocol.c */
@@ -183,12 +185,16 @@ int git_smart__negotiate_fetch(
 	git_repository *repo,
 	const git_fetch_negotiation *wants);
 
+int git_smart__shallow_roots(git_oidarray *out, git_transport *transport);
+
 int git_smart__download_pack(
 	git_transport *transport,
 	git_repository *repo,
 	git_indexer_progress *stats);
 
 /* smart.c */
+int git_smart__recv(transport_smart *t);
+
 int git_smart__negotiation_step(git_transport *transport, void *data, size_t len);
 int git_smart__get_push_stream(transport_smart *t, git_smart_subtransport_stream **out);
 
@@ -207,9 +213,5 @@ int git_pkt_buffer_done(git_str *buf);
 int git_pkt_buffer_wants(const git_fetch_negotiation *wants, transport_smart_caps *caps, git_str *buf);
 int git_pkt_buffer_have(git_oid *oid, git_str *buf);
 void git_pkt_free(git_pkt *pkt);
-
-struct git_shallowarray {
-	git_array_oid_t array;
-};
 
 #endif

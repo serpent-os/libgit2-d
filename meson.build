@@ -74,6 +74,8 @@ link_libgit2 = declare_dependency(
 	include_directories: libgit2_includes,
 )
 
+subdir('examples')
+
 # Installed system-wide?
 if installFiles
 	

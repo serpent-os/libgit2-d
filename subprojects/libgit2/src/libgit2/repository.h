@@ -152,8 +152,9 @@ struct git_repository {
 
 	git_array_t(git_str) reserved_names;
 
-	unsigned is_bare:1;
-	unsigned is_worktree:1;
+	unsigned use_env:1,
+	         is_bare:1,
+	         is_worktree:1;
 	git_oid_t oid_type;
 
 	unsigned int lru_counter;
@@ -194,6 +195,11 @@ int git_repository_refdb__weakptr(git_refdb **out, git_repository *repo);
 int git_repository_index__weakptr(git_index **out, git_repository *repo);
 int git_repository_grafts__weakptr(git_grafts **out, git_repository *repo);
 int git_repository_shallow_grafts__weakptr(git_grafts **out, git_repository *repo);
+
+int git_repository__wrap_odb(
+	git_repository **out,
+	git_odb *odb,
+	git_oid_t oid_type);
 
 /*
  * Configuration map cache
@@ -245,8 +251,8 @@ extern size_t git_repository__reserved_names_posix_len;
 bool git_repository__reserved_names(
 	git_str **out, size_t *outlen, git_repository *repo, bool include_ntfs);
 
-int git_repository__shallow_roots(git_array_oid_t *out, git_repository *repo);
-int git_repository__shallow_roots_write(git_repository *repo, git_array_oid_t roots);
+int git_repository__shallow_roots(git_oid **out, size_t *out_len, git_repository *repo);
+int git_repository__shallow_roots_write(git_repository *repo, git_oidarray *roots);
 
 /*
  * The default branch for the repository; the `init.defaultBranch`

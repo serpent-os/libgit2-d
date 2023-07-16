@@ -46,6 +46,9 @@ that single header file (without preprocessing) after performing the build and
 install steps specified in the [Generating Bindings](#Generating-Bindings)
 section.
 
+Currently, there's a Perl script that performs the "safeification" of the
+bindings according to the rules below.
+
 ### Making It Ergonomic
 
 1. At the very least, all pointer parameters should have the `scope` attribute
@@ -67,8 +70,8 @@ section.
    - The `git_x_options` structs are particularly forgiving in that there are
      two identical functions for initializing them
      (`git_x_init_options` and `git_x_options_init`). In this case, we choose
-     to exempt the `git_x_options_init` functions from rule (3) and only apply
-     rule (3) on the `git_x_init_options` functions).
+     to exempt the `git_x_init_options` functions from rule (3) and only apply
+     rule (3) on the `git_x_options_init` functions).
 4. Some structs, particularly structs who do not have a declared body and are
    assigned through a pointer-to-pointer or a ref to a pointer (such as
    `git_repository` and `git_remote`), cannot be passed as `ref` since they must
@@ -77,9 +80,9 @@ section.
 5. Anything with `ref`/`out` disallows passing lvalues to it, therefore rule (3)
    will break any function that intends you to pass `null` to indicate an
    optional parameter. When this happens, copy the edited function into the
-   `extra.d` file and follow rule (1) for that parameter. For the original
+   `extra.d` file and follow rule (1) for that parameter. For the edited
    function in the
-   `bindings.d` file, you may add a `=null` default value to that parameter if
+   `extra.d` file, you may add a `=null` default value to that parameter if
    desired. For reference, search for the definition
    of the two `git_clone` functions.
 

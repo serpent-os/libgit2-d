@@ -7,13 +7,11 @@ static git_repository *g_repo;
 
 void test_grafts_basic__initialize(void)
 {
-	git_libgit2_opts(GIT_OPT_ENABLE_SHALLOW, 1);
 	g_repo = cl_git_sandbox_init("grafted.git");
 }
 
 void test_grafts_basic__cleanup(void)
 {
-	git_libgit2_opts(GIT_OPT_ENABLE_SHALLOW, 0);
 	cl_git_sandbox_cleanup();
 }
 
@@ -24,7 +22,7 @@ void test_grafts_basic__graft_add(void)
 	git_commit_graft *graft;
 	git_grafts *grafts;
 
-	cl_git_pass(git_grafts_new(&grafts));
+	cl_git_pass(git_grafts_new(&grafts, GIT_OID_SHA1));
 
 	cl_assert(oid1 = git_array_alloc(parents));
 	cl_git_pass(git_oid__fromstr(&oid_src, "2f3053cbff8a4ca2f0666de364ddb734a28a31a9", GIT_OID_SHA1));

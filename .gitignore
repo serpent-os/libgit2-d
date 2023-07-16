@@ -13,3 +13,7 @@ bin/
 *.o
 *.obj
 *.lst
+*.bak
+
+# Examples executables
+single-commit-clone
