@@ -1,3 +1,7 @@
+**This project is no longer active**
+
+---
+
 # libgit2-d
 
 `@safe` D bindings for libgit2.
